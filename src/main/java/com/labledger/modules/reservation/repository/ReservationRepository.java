@@ -98,4 +98,41 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
             @Param("windowStart") Instant windowStart,
             @Param("windowEnd") Instant windowEnd
     );
+
+    long countByStatus(ReservationStatus status);
+
+    long countByUserIdAndStatus(UUID userId, ReservationStatus status);
+
+    long countByStatusAndStartTimeAfter(ReservationStatus status, Instant after);
+
+    long countByUserIdAndStatusAndStartTimeAfter(UUID userId, ReservationStatus status, Instant after);
+
+    @Query("SELECT r FROM Reservation r " +
+           "JOIN FETCH r.equipment e " +
+           "LEFT JOIN FETCH e.laboratory " +
+           "WHERE r.status IN :statuses " +
+           "AND r.startTime < :end AND r.endTime > :start " +
+           "ORDER BY r.startTime ASC")
+    List<Reservation> findOverlappingReservations(
+            @Param("start") Instant start,
+            @Param("end") Instant end,
+            @Param("statuses") Collection<ReservationStatus> statuses
+    );
+
+    @Query("SELECT r FROM Reservation r " +
+           "JOIN FETCH r.equipment e " +
+           "LEFT JOIN FETCH e.laboratory " +
+           "WHERE e.laboratory.id = :laboratoryId " +
+           "AND r.status IN :statuses " +
+           "AND r.startTime < :end AND r.endTime > :start " +
+           "ORDER BY r.startTime ASC")
+    List<Reservation> findOverlappingReservationsByLaboratory(
+            @Param("laboratoryId") UUID laboratoryId,
+            @Param("start") Instant start,
+            @Param("end") Instant end,
+            @Param("statuses") Collection<ReservationStatus> statuses
+    );
+
+    @EntityGraph(attributePaths = {"equipment", "user"})
+    List<Reservation> findTop5ByStatusOrderByCreatedAtAsc(ReservationStatus status);
 }

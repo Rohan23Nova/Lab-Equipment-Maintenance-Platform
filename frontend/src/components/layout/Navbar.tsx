@@ -55,6 +55,12 @@ export const Navbar: React.FC = () => {
           {isAuthenticated ? (
             <>
               <Link
+                to="/app/dashboard"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Dashboard
+              </Link>
+              <Link
                 to="/app/equipment"
                 className="text-foreground hover:text-primary transition-colors py-1 font-medium"
               >
@@ -100,6 +106,12 @@ export const Navbar: React.FC = () => {
                     className="text-foreground hover:text-primary transition-colors py-1 font-medium"
                   >
                     Audit
+                  </Link>
+                  <Link
+                    to="/app/reports"
+                    className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+                  >
+                    Reports
                   </Link>
                 </>
               )}
@@ -221,6 +233,13 @@ export const Navbar: React.FC = () => {
             {isAuthenticated ? (
               <>
                 <Link
+                  to="/app/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  Dashboard
+                </Link>
+                <Link
                   to="/app/equipment"
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
@@ -270,13 +289,22 @@ export const Navbar: React.FC = () => {
                   </Link>
                 )}
                 {canApprove && (
-                  <Link
-                    to="/app/audit-logs"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
-                  >
-                    Audit Trail
-                  </Link>
+                  <>
+                    <Link
+                      to="/app/audit-logs"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                    >
+                      Audit Trail
+                    </Link>
+                    <Link
+                      to="/app/reports"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                    >
+                      Reports & Auditing
+                    </Link>
+                  </>
                 )}
                 <Link
                   to="/app/notifications"

@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -47,4 +49,39 @@ public interface MaintenanceWorkOrderRepository
 
     @Query("SELECT COUNT(w) FROM MaintenanceWorkOrder w")
     long countTotalWorkOrders();
+
+    long countByStatusIn(Collection<WorkOrderStatus> statuses);
+
+    long countByAssignedTechnicianIdAndStatusIn(UUID technicianId, Collection<WorkOrderStatus> statuses);
+
+    @Query("SELECT COUNT(w) FROM MaintenanceWorkOrder w " +
+           "WHERE w.status != 'COMPLETED' " +
+           "AND w.plannedCompletionDate < :now")
+    long countOverdueWorkOrders(@Param("now") LocalDate now);
+
+    @Query("SELECT COUNT(w) FROM MaintenanceWorkOrder w " +
+           "WHERE w.assignedTechnician.id = :technicianId " +
+           "AND w.status != 'COMPLETED' " +
+           "AND w.plannedCompletionDate < :now")
+    long countOverdueWorkOrdersForTechnician(
+            @Param("technicianId") UUID technicianId,
+            @Param("now") LocalDate now
+    );
+
+    @EntityGraph(attributePaths = {"equipment", "equipment.laboratory", "assignedTechnician"})
+    @Query("SELECT w FROM MaintenanceWorkOrder w " +
+           "WHERE w.status != 'COMPLETED' " +
+           "AND w.plannedCompletionDate < :now " +
+           "ORDER BY w.plannedCompletionDate ASC")
+    List<MaintenanceWorkOrder> findOverdueWorkOrders(@Param("now") LocalDate now);
+
+    @EntityGraph(attributePaths = {"equipment", "assignedTechnician"})
+    @Query("SELECT w FROM MaintenanceWorkOrder w " +
+           "WHERE w.status = 'COMPLETED' " +
+           "AND w.actualCompletionTime >= :fromTime AND w.actualCompletionTime <= :toTime " +
+           "ORDER BY w.actualCompletionTime ASC")
+    List<MaintenanceWorkOrder> findCompletedWorkOrdersBetween(
+            @Param("fromTime") Instant fromTime,
+            @Param("toTime") Instant toTime
+    );
 }

@@ -17,6 +17,8 @@ import { WorkOrdersPage } from '@/pages/maintenance/WorkOrdersPage';
 import { WorkOrderDetailPage } from '@/pages/maintenance/WorkOrderDetailPage';
 import { NotificationsPage } from '@/pages/notification/NotificationsPage';
 import { AuditLogsPage } from '@/pages/audit/AuditLogsPage';
+import { DashboardPage } from '@/pages/analytics/DashboardPage';
+import { ReportsPage } from '@/pages/analytics/ReportsPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -120,6 +122,22 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT']}>
             <AuditLogsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/reports"
+        element={
+          <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT', 'ROLE_TECHNICIAN']}>
+            <ReportsPage />
           </ProtectedRoute>
         }
       />

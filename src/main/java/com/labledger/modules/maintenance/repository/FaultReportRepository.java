@@ -1,6 +1,8 @@
 package com.labledger.modules.maintenance.repository;
 
 import com.labledger.modules.maintenance.model.FaultReport;
+import com.labledger.modules.maintenance.model.FaultSeverity;
+import com.labledger.modules.maintenance.model.FaultStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,6 +12,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,4 +41,40 @@ public interface FaultReportRepository extends JpaRepository<FaultReport, UUID>,
 
     @Query("SELECT COUNT(f) FROM FaultReport f")
     long countTotalReports();
+
+    long countByStatusIn(Collection<FaultStatus> statuses);
+
+    long countByStatusInAndSeverity(Collection<FaultStatus> statuses, FaultSeverity severity);
+
+    long countByReportedByIdAndStatusIn(UUID reportedById, Collection<FaultStatus> statuses);
+
+    @EntityGraph(attributePaths = {"equipment", "equipment.laboratory"})
+    List<FaultReport> findTop5ByStatusInAndSeverityOrderByReportedAtDesc(
+            Collection<FaultStatus> statuses,
+            FaultSeverity severity
+    );
+
+    @Query("SELECT f.equipment.id, f.equipment.assetTag, f.equipment.name, " +
+           "f.equipment.laboratory.name, f.equipment.status, " +
+           "COUNT(f), " +
+           "SUM(CASE WHEN f.severity = 'CRITICAL' THEN 1L ELSE 0L END), " +
+           "MAX(f.reportedAt) " +
+           "FROM FaultReport f " +
+           "WHERE f.reportedAt >= :fromTime AND f.reportedAt <= :toTime " +
+           "GROUP BY f.equipment.id, f.equipment.assetTag, f.equipment.name, " +
+           "f.equipment.laboratory.name, f.equipment.status " +
+           "HAVING COUNT(f) >= 2 " +
+           "ORDER BY COUNT(f) DESC, MAX(f.reportedAt) DESC")
+    List<Object[]> findEquipmentWithRepeatedFaults(
+            @Param("fromTime") Instant fromTime,
+            @Param("toTime") Instant toTime
+    );
+
+    @Query("SELECT f FROM FaultReport f " +
+           "WHERE f.reportedAt >= :fromTime AND f.reportedAt <= :toTime " +
+           "ORDER BY f.reportedAt ASC")
+    List<FaultReport> findFaultsBetween(
+            @Param("fromTime") Instant fromTime,
+            @Param("toTime") Instant toTime
+    );
 }
