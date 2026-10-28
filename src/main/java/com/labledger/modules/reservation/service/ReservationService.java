@@ -374,6 +374,23 @@ public class ReservationService {
         );
     }
 
+    @Transactional
+    public List<UUID> cancelFutureReservationsForMaintenance(UUID equipmentId, String reason, User actor) {
+        List<Reservation> activeFuture = reservationRepository.findActiveSlotsForEquipment(
+                equipmentId,
+                Instant.now(),
+                Instant.now().plus(Duration.ofDays(365)),
+                ACTIVE_STATUSES
+        );
+
+        for (Reservation r : activeFuture) {
+            r.setStatus(ReservationStatus.CANCELLED);
+            r.setCancellationReason(reason != null ? reason : "Cancelled due to equipment maintenance");
+        }
+        reservationRepository.saveAll(activeFuture);
+        return activeFuture.stream().map(Reservation::getId).toList();
+    }
+
     public ReservationSummaryResponse toSummary(Reservation r) {
         return new ReservationSummaryResponse(
                 r.getId(),

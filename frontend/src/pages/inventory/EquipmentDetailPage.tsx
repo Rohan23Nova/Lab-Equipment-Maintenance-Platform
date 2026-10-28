@@ -11,6 +11,8 @@ import { ArchiveEquipmentModal } from '@/components/inventory/ArchiveEquipmentMo
 import { AttachDocumentModal } from '@/components/inventory/AttachDocumentModal';
 import { EquipmentScheduleTimeline } from '@/components/reservation/EquipmentScheduleTimeline';
 import { CreateReservationModal } from '@/components/reservation/CreateReservationModal';
+import { EquipmentMaintenanceHistory } from '@/components/maintenance/EquipmentMaintenanceHistory';
+import { ReportFaultModal } from '@/components/maintenance/ReportFaultModal';
 import { EquipmentDetail, EquipmentDocumentType } from '@/types/inventory';
 import { inventoryApi } from '@/lib/inventoryApi';
 import { useAuth } from '@/context/AuthContext';
@@ -30,6 +32,7 @@ import {
   Archive,
   ExternalLink,
   Plus,
+  Wrench,
 } from 'lucide-react';
 
 export const EquipmentDetailPage: React.FC = () => {
@@ -40,7 +43,7 @@ export const EquipmentDetailPage: React.FC = () => {
   const [equipment, setEquipment] = useState<EquipmentDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'audit' | 'documents'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'audit' | 'documents' | 'maintenance'>('overview');
 
   // Modals
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
@@ -48,6 +51,7 @@ export const EquipmentDetailPage: React.FC = () => {
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isAttachDocModalOpen, setIsAttachDocModalOpen] = useState(false);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+  const [isReportFaultModalOpen, setIsReportFaultModalOpen] = useState(false);
   const [scheduleRefreshKey, setScheduleRefreshKey] = useState(0);
 
   // Role permissions
@@ -217,6 +221,18 @@ export const EquipmentDetailPage: React.FC = () => {
                     </Button>
                   )}
 
+                  {equipment.status !== 'ARCHIVED' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsReportFaultModalOpen(true)}
+                      className="gap-1.5 text-rose-500 border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-600"
+                    >
+                      <Wrench className="w-4 h-4 text-rose-500" />
+                      <span>Report Defect</span>
+                    </Button>
+                  )}
+
                   {canUpdateStatus && equipment.status !== 'ARCHIVED' && (
                     <Button variant="secondary" size="sm" onClick={() => setIsStatusModalOpen(true)}>
                       <RefreshCw className="w-4 h-4 mr-1.5 text-accent-lime" />
@@ -293,6 +309,17 @@ export const EquipmentDetailPage: React.FC = () => {
                   <span className="text-xs px-1.5 py-0.2 rounded-full bg-muted font-mono">
                     {equipment.documents.length}
                   </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('maintenance')}
+                  className={`pb-2 font-medium transition-colors border-b-2 flex items-center gap-1.5 ${
+                    activeTab === 'maintenance'
+                      ? 'border-accent-lime text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Wrench className="w-4 h-4 text-accent-lime" />
+                  <span>Maintenance History</span>
                 </button>
               </div>
             </div>
@@ -571,6 +598,11 @@ export const EquipmentDetailPage: React.FC = () => {
                 )}
               </div>
             )}
+
+            {/* TAB CONTENT 5: Maintenance & Defects */}
+            {activeTab === 'maintenance' && (
+              <EquipmentMaintenanceHistory equipmentId={equipment.id} />
+            )}
           </div>
         )}
       </main>
@@ -625,6 +657,20 @@ export const EquipmentDetailPage: React.FC = () => {
             setIsReserveModalOpen(false);
             setScheduleRefreshKey((prev) => prev + 1);
           }}
+        />
+      )}
+
+      {isReportFaultModalOpen && equipment && (
+        <ReportFaultModal
+          isOpen={isReportFaultModalOpen}
+          onClose={() => setIsReportFaultModalOpen(false)}
+          onSuccess={() => {
+            setIsReportFaultModalOpen(false);
+            loadEquipment();
+          }}
+          equipmentId={equipment.id}
+          equipmentName={equipment.name}
+          equipmentAssetTag={equipment.assetTag}
         />
       )}
     </div>

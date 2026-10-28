@@ -165,6 +165,28 @@ public class EquipmentService {
     }
 
     @Transactional
+    public Equipment transitionStatusDirect(UUID id, EquipmentStatus newStatus, String reason, String notes, User actor) {
+        Equipment equipment = equipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment instrument with identifier '" + id + "' was not found"));
+
+        EquipmentStatus previousStatus = equipment.getStatus();
+        equipment.setStatus(newStatus);
+        equipmentRepository.save(equipment);
+
+        EquipmentStatusHistory history = EquipmentStatusHistory.builder()
+                .equipment(equipment)
+                .previousStatus(previousStatus)
+                .newStatus(newStatus)
+                .changedByUser(actor)
+                .reason(reason != null ? reason.trim() : "STATUS_UPDATE")
+                .notes(notes)
+                .build();
+        statusHistoryRepository.save(history);
+
+        return equipment;
+    }
+
+    @Transactional
     public EquipmentResponse archiveEquipment(UUID id, String reason, Authentication authentication) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment instrument with identifier '" + id + "' was not found"));

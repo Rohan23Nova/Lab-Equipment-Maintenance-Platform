@@ -11,6 +11,10 @@ import { EquipmentDetailPage } from '@/pages/inventory/EquipmentDetailPage';
 import { LaboratoryListPage } from '@/pages/inventory/LaboratoryListPage';
 import { MyReservationsPage } from '@/pages/reservation/MyReservationsPage';
 import { ApprovalsQueuePage } from '@/pages/reservation/ApprovalsQueuePage';
+import { FaultInboxPage } from '@/pages/maintenance/FaultInboxPage';
+import { FaultDetailPage } from '@/pages/maintenance/FaultDetailPage';
+import { WorkOrdersPage } from '@/pages/maintenance/WorkOrdersPage';
+import { WorkOrderDetailPage } from '@/pages/maintenance/WorkOrderDetailPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -66,6 +70,38 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT']}>
             <ApprovalsQueuePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/faults"
+        element={
+          <ProtectedRoute>
+            <FaultInboxPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/faults/:id"
+        element={
+          <ProtectedRoute>
+            <FaultDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/work-orders"
+        element={
+          <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT', 'ROLE_TECHNICIAN']}>
+            <WorkOrdersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/work-orders/:id"
+        element={
+          <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT', 'ROLE_TECHNICIAN']}>
+            <WorkOrderDetailPage />
           </ProtectedRoute>
         }
       />

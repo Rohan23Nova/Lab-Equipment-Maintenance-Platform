@@ -28,6 +28,9 @@ export const Navbar: React.FC = () => {
 
   const highestRole = user?.roles[0]?.replace('ROLE_', '') || 'USER';
   const canApprove = user?.roles.some((r) => r === 'ROLE_ADMIN' || r === 'ROLE_LAB_ASSISTANT');
+  const canManageWorkOrders = user?.roles.some(
+    (r) => r === 'ROLE_ADMIN' || r === 'ROLE_LAB_ASSISTANT' || r === 'ROLE_TECHNICIAN'
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/80 transition-colors">
@@ -68,6 +71,20 @@ export const Navbar: React.FC = () => {
               >
                 Reservations
               </Link>
+              <Link
+                to="/app/faults"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Faults
+              </Link>
+              {canManageWorkOrders && (
+                <Link
+                  to="/app/work-orders"
+                  className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+                >
+                  Work Orders
+                </Link>
+              )}
               {canApprove && (
                 <Link
                   to="/app/approvals"
@@ -211,6 +228,22 @@ export const Navbar: React.FC = () => {
                 >
                   My Reservations
                 </Link>
+                <Link
+                  to="/app/faults"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  Fault Reports
+                </Link>
+                {canManageWorkOrders && (
+                  <Link
+                    to="/app/work-orders"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                  >
+                    Work Orders
+                  </Link>
+                )}
                 {canApprove && (
                   <Link
                     to="/app/approvals"
