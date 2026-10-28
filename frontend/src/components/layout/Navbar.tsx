@@ -47,22 +47,37 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground" aria-label="Main Navigation">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="hover:text-foreground transition-colors py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
-            >
-              {link.label}
-            </a>
-          ))}
-          {isAuthenticated && (
-            <Link
-              to="/app/profile"
-              className="text-foreground hover:text-primary transition-colors py-1 font-medium"
-            >
-              Workspace
-            </Link>
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/app/equipment"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Equipment
+              </Link>
+              <Link
+                to="/app/laboratories"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Laboratories
+              </Link>
+              <Link
+                to="/app/profile"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Workspace
+              </Link>
+            </>
+          ) : (
+            navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="hover:text-foreground transition-colors py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              >
+                {link.label}
+              </a>
+            ))
           )}
         </nav>
 
@@ -157,24 +172,41 @@ export const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-border bg-background px-4 pt-3 pb-6 space-y-3">
           <nav className="flex flex-col space-y-2 text-sm font-medium">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
-            {isAuthenticated && (
-              <Link
-                to="/app/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-md hover:bg-muted text-foreground font-semibold"
-              >
-                My Account Profile
-              </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/app/equipment"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  Equipment Inventory
+                </Link>
+                <Link
+                  to="/app/laboratories"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  Laboratory Facilities
+                </Link>
+                <Link
+                  to="/app/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground font-semibold"
+                >
+                  My Account Profile
+                </Link>
+              </>
+            ) : (
+              navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))
             )}
           </nav>
 

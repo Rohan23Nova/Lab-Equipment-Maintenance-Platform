@@ -6,6 +6,9 @@ import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { ForbiddenPage } from '@/pages/ForbiddenPage';
+import { EquipmentListPage } from '@/pages/inventory/EquipmentListPage';
+import { EquipmentDetailPage } from '@/pages/inventory/EquipmentDetailPage';
+import { LaboratoryListPage } from '@/pages/inventory/LaboratoryListPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -21,6 +24,30 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/equipment"
+        element={
+          <ProtectedRoute>
+            <EquipmentListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/equipment/:id"
+        element={
+          <ProtectedRoute>
+            <EquipmentDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/laboratories"
+        element={
+          <ProtectedRoute>
+            <LaboratoryListPage />
           </ProtectedRoute>
         }
       />
