@@ -105,29 +105,28 @@ public class SecurityConfig {
 
 ## 4. Role-Based Access Control (RBAC) Matrix
 
-LabLedger enforces 4 distinct roles:
+LabLedger enforces 5 distinct roles:
 
-1. **`ROLE_STUDENT`**: Enrolled students who reserve standard lab equipment for coursework and research.
-2. **`ROLE_FACULTY`**: Academic professors and research PIs who book equipment, sponsor student access, and review research usage.
-3. **`ROLE_LAB_MANAGER`**: Lab supervisors who manage inventory, review booking requests for restricted instruments, triage fault reports, and assign work orders.
-4. **`ROLE_ADMIN`**: University systems administrators managing users, roles, system-wide laboratories, and audit inspection.
+1. **`ROLE_ADMIN`**: Full administrative authority: user management, status activation/suspension, facility management, system settings, and audit ledger inspection.
+2. **`ROLE_LAB_ASSISTANT`**: Laboratory supervisors managing assigned lab equipment, reservation calendars, fault triage, and maintenance workflows.
+3. **`ROLE_TECHNICIAN`**: Maintenance specialists inspecting assigned work orders, updating repair milestones, and logging repair resolutions.
+4. **`ROLE_STUDENT`**: Enrolled students browsing permitted equipment, scheduling reservations, and filing fault/defect reports.
+5. **`ROLE_FACULTY`**: Academic faculty booking specialized research instruments, supervising student lab reservations, and inspecting departmental utilization.
 
 ### RBAC Permission Matrix
 
-| Capability / Endpoint Group | Student | Faculty | Lab Manager | Admin |
-|---|:---:|:---:|:---:|:---:|
-| Browse Equipment Catalog (`GET /api/v1/equipment/**`) | Read | Read | Read | Read |
-| Create / Edit Equipment Items (`POST/PUT /api/v1/equipment/**`) | - | - | Lab Only | Full |
-| Request Equipment Reservation (`POST /api/v1/reservations`) | Own | Own | Any | Any |
-| Approve / Reject Reservations (`PATCH /api/v1/reservations/{id}/approval`) | - | - | Lab Only | Full |
-| Check-in / Check-out (`POST /api/v1/reservations/{id}/check-in`) | Own | Own | Any | Any |
-| Submit Fault Report (`POST /api/v1/fault-reports`) | Any | Any | Any | Any |
-| Triage Fault / Create Work Order (`POST /api/v1/maintenance/work-orders`) | - | - | Lab Only | Full |
-| Complete Work Order & Log Parts (`PUT /api/v1/maintenance/work-orders/{id}`) | - | - | Lab Only | Full |
-| View Own Notifications (`GET /api/v1/notifications`) | Own | Own | Own | Own |
-| View System Audit Logs (`GET /api/v1/audit/**`) | - | - | - | Full |
-| User & Role Management (`GET/PUT /api/v1/admin/users/**`) | - | - | - | Full |
-| View Utilization Analytics (`GET /api/v1/analytics/**`) | - | Own Dept | Lab Only | Full |
+| Capability / Endpoint Group | Student | Faculty | Technician | Lab Assistant | Admin |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Browse Equipment Catalog (`GET /api/v1/equipment/**`) | Read | Read | Read | Read | Read |
+| Create / Edit Equipment Items (`POST/PUT /api/v1/equipment/**`) | - | - | - | Lab Only | Full |
+| Request Equipment Reservation (`POST /api/v1/reservations`) | Own | Own | - | Any | Any |
+| Approve / Reject Reservations (`PATCH /api/v1/reservations/{id}/approval`) | - | - | - | Lab Only | Full |
+| Check-in / Check-out (`POST /api/v1/reservations/{id}/check-in`) | Own | Own | - | Any | Any |
+| Submit Fault Report (`POST /api/v1/fault-reports`) | Any | Any | Any | Any | Any |
+| Triage Fault / Create Work Order (`POST /api/v1/maintenance/work-orders`) | - | - | - | Lab Only | Full |
+| Work Order Execution (`PUT /api/v1/maintenance/work-orders/{id}`) | - | - | Assigned | Lab Only | Full |
+| User Status & Management (`PATCH /api/v1/users/{id}/status`) | - | - | - | - | Full |
+| View System Audit Logs (`GET /api/v1/audit/**`) | - | - | - | - | Full |
 
 ---
 

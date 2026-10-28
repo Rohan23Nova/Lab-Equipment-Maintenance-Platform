@@ -1,34 +1,45 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { BackendStatusBadge } from '@/components/common/BackendStatusBadge';
 import { useTheme } from '@/context/ThemeContext';
-import { Moon, Sun, Menu, X, ArrowUpRight } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Moon, Sun, Menu, X, ArrowUpRight, User, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { resolvedTheme, toggleTheme } = useTheme();
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: 'Capabilities', href: '#features' },
-    { label: 'Product Preview', href: '#preview' },
-    { label: 'Workflow', href: '#workflow' },
-    { label: 'Architecture', href: '#architecture' },
-    { label: 'Docs', href: '#docs' },
+    { label: 'Capabilities', href: '/#features' },
+    { label: 'Product Preview', href: '/#preview' },
+    { label: 'Workflow', href: '/#workflow' },
+    { label: 'Architecture', href: '/#architecture' },
   ];
+
+  const handleSignOut = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  const highestRole = user?.roles[0]?.replace('ROLE_', '') || 'USER';
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo & Wordmark */}
         <div className="flex items-center gap-4">
-          <a
-            href="#"
+          <Link
+            to="/"
             className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md p-1"
             aria-label="LabLedger Home"
           >
             <Wordmark showTagline={false} size="md" />
-          </a>
+          </Link>
           <div className="hidden lg:block">
             <BackendStatusBadge />
           </div>
@@ -45,9 +56,17 @@ export const Navbar: React.FC = () => {
               {link.label}
             </a>
           ))}
+          {isAuthenticated && (
+            <Link
+              to="/app/profile"
+              className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+            >
+              Workspace
+            </Link>
+          )}
         </nav>
 
-        {/* Right Actions: Theme Toggle & Entry Buttons */}
+        {/* Right Actions: Theme Toggle & Auth State */}
         <div className="hidden md:flex items-center gap-3">
           {/* Theme switcher */}
           <button
@@ -63,31 +82,50 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
-          {/* Sign In button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const previewEl = document.getElementById('preview');
-              previewEl?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            Sign In
-          </Button>
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              <Link to="/app/profile" className="flex items-center gap-2 group">
+                <div className="flex flex-col text-right">
+                  <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
+                    {user.firstName} {user.lastName}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground leading-tight">
+                    {user.department || user.email}
+                  </span>
+                </div>
+                <Badge variant="lime" className="text-[10px] py-0 px-1.5 uppercase">
+                  {highestRole}
+                </Badge>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                aria-label="Sign out"
+                title="Sign out"
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Sign In link */}
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
 
-          {/* Primary CTA */}
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              const previewEl = document.getElementById('preview');
-              previewEl?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="gap-1.5"
-          >
-            <span>Launch Preview</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Button>
+              {/* Primary CTA */}
+              <Link to="/login">
+                <Button variant="primary" size="sm" className="gap-1.5">
+                  <span>Enter Portal</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
@@ -129,32 +167,55 @@ export const Navbar: React.FC = () => {
                 {link.label}
               </a>
             ))}
+            {isAuthenticated && (
+              <Link
+                to="/app/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-md hover:bg-muted text-foreground font-semibold"
+              >
+                My Account Profile
+              </Link>
+            )}
           </nav>
 
           <div className="pt-3 border-t border-border flex flex-col gap-2">
-            <Button
-              variant="outline"
-              size="md"
-              className="w-full justify-center"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                document.getElementById('preview')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Sign In
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full justify-center gap-1.5"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                document.getElementById('preview')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <span>Launch Preview</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </Button>
+            {isAuthenticated && user ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-3 py-2 bg-muted/40 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{user.email}</span>
+                  </div>
+                  <Badge variant="lime">{highestRole}</Badge>
+                </div>
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="w-full justify-center text-destructive"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                >
+                  <LogOut className="w-4 h-4 mr-1.5" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" size="md" className="w-full justify-center">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="primary" size="md" className="w-full justify-center gap-1.5">
+                    <span>Enter Portal</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -1,5 +1,7 @@
 package com.labledger.common.error;
 
+import com.labledger.common.exception.AccountDisabledException;
+import com.labledger.common.exception.AccountLockedException;
 import com.labledger.common.exception.BusinessRuleException;
 import com.labledger.common.exception.ConflictException;
 import com.labledger.common.exception.ResourceNotFoundException;
@@ -8,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +44,60 @@ public class GlobalExceptionHandler {
                 .toList();
 
         problem.setProperty("invalidParams", invalidParams);
+        return problem;
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public ProblemDetail handleAccountLocked(AccountLockedException ex, HttpServletRequest request) {
+        log.warn("Login attempt on locked account [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, ex.getMessage());
+        problem.setTitle("Account Locked");
+        problem.setType(URI.create("https://labledger.university.edu/errors/account-locked"));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(AccountDisabledException.class)
+    public ProblemDetail handleAccountDisabled(AccountDisabledException ex, HttpServletRequest request) {
+        log.warn("Login attempt on disabled account [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problem.setTitle("Account Disabled");
+        problem.setType(URI.create("https://labledger.university.edu/errors/account-disabled"));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        log.warn("Failed authentication attempt on [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid email or password. Please check your credentials."
+        );
+        problem.setTitle("Authentication Failed");
+        problem.setType(URI.create("https://labledger.university.edu/errors/bad-credentials"));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("Access denied on [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                "Access denied. You do not possess the required laboratory role to access this resource."
+        );
+        problem.setTitle("Forbidden");
+        problem.setType(URI.create("https://labledger.university.edu/errors/forbidden"));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
         return problem;
     }
 

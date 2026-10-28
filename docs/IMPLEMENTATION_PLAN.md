@@ -52,53 +52,51 @@ gantt
 
 ---
 
-### Phase 01: Core Scaffolding, Build & CI Setup
-**Goal**: Construct runnable backend and frontend skeletons, local Docker infrastructure, and automated GitHub Actions CI pipeline.
+### Phase 01: Visual Identity and Landing Page
+**Goal**: Build the visual foundation and a polished, responsive public landing page for LabLedger with light and dark themes.
 
-**Deliverables**:
-- **Backend Scaffold**:
-  - `pom.xml` with Java 21, Spring Boot 3.5.x, Spring Data JPA, Spring Security, Flyway, Validation, OpenAPI, Lombok, Testcontainers.
-  - Maven Wrapper (`mvnw`, `.mvn/wrapper`).
-  - Base configuration classes: `WebMvcConfig`, `OpenApiConfig`, `JpaAuditConfig`, `AsyncConfig`.
-  - Common error infrastructure: RFC 7807 `GlobalExceptionHandler`, standard `ApiResponse<T>`, `ProblemDetail`.
-- **Database & Local Dev**:
-  - `docker-compose.yml` for PostgreSQL 16 Alpine with health check and persistent named volume.
-  - `application.yml` and `application-dev.yml` with externalized environment variables.
-  - Flyway migration `V1__init_extensions_and_users.sql`.
-- **Frontend Scaffold**:
-  - Vite + React 18 + TypeScript setup under `/frontend`.
-  - Tailwind CSS 3.4.x configuration and shadcn/ui base components (`button`, `card`, `input`, `dialog`, `badge`).
-  - Axios client configured with `withCredentials: true` and CSRF interceptor.
-  - TanStack Query client setup.
-- **CI / Automation**:
-  - `.github/workflows/ci.yml` running backend tests (`mvn verify`) and frontend tests (`npm test`, `npm run build`).
+- [x] Design distinctive LabLedger logo mark and wordmark.
+- [x] Public navigation with branding, links, and Theme switcher.
+- [x] High-quality hero section with tagline and primary call to action.
+- [x] Authentic product preview showcasing instrument status and laboratory console.
+- [x] Feature highlights covering equipment, reservations, maintenance, and auditability.
+- [x] Interactive fault-to-maintenance lifecycle workflow diagram.
+- [x] Restrained footer, responsive layouts, accessibility, and Vitest suite.
 
 ---
 
-### Phase 02: Authentication, Authorization & User Management Module
-**Goal**: Implement complete authentication, session management, CSRF handshake, user registration, and RBAC security guards.
+### Phase 02: Spring Boot Foundation and Database Integration
+**Goal**: Establish runnable backend with Spring Boot 3.5.x on Java 21, PostgreSQL database, Flyway migrations, and error contracts.
 
-**Deliverables**:
-- **Backend**:
-  - Entities: `User`, `UserRole`, `Certification`, `UserCertification`.
-  - DTOs (Records): `LoginRequest`, `RegisterRequest`, `UserResponse`, `UpdateProfileRequest`.
-  - Service: `UserService`, `AuthService`, `CustomUserDetailsService` with BCrypt password hashing.
-  - Controller: `AuthController` (`/api/v1/auth/login`, `/logout`, `/csrf`, `/me`, `/register`).
-  - Spring Security integration with `JSESSIONID` session cookies and `X-XSRF-TOKEN`.
-  - Pre-flight authorization guards (`@PreAuthorize`).
-- **Frontend**:
-  - Auth context and `useAuth` hook.
-  - `LoginPage`, `RegisterPage`, and `ProtectedRoute` components.
-  - Profile view with active role badges and earned lab certifications.
-- **Testing**:
-  - Unit tests for `AuthService` and `UserService`.
-  - `@WebMvcTest` slice tests for `AuthController` verifying CSRF and session handling.
-  - Testcontainers integration tests for user registration, authentication, and session expiry.
-  - Frontend Vitest tests for login form validation and auth state management.
+- [x] Maven-based Spring Boot foundation with modular package layout.
+- [x] Flyway `V1__init_schema.sql` (users, user_roles, laboratories).
+- [x] RFC 7807 `ProblemDetail` GlobalExceptionHandler for 400, 404, 409, 422, 500.
+- [x] System status and database connectivity endpoint (`/api/v1/system/status`).
+- [x] Centralized frontend API client with environment-aware baseURL and ProblemDetail parsing.
+- [x] Automated tests for backend and frontend.
 
 ---
 
-### Phase 03: Equipment Inventory & Laboratory Module
+### Phase 03: Authentication and Role-Based Authorization
+**Goal**: Implement complete authentication and authorization using Spring Security stateful sessions, CSRF protection, and role guards.
+
+- [x] Flyway migration `V2__auth_roles_and_security_enhancements.sql` (roles check constraint, brute-force throttling fields).
+- [x] Roles: `ROLE_ADMIN`, `ROLE_LAB_ASSISTANT`, `ROLE_TECHNICIAN`, `ROLE_STUDENT`, `ROLE_FACULTY`.
+- [x] Server-side session authentication (`JSESSIONID`, `HttpOnly`, `SameSite=STRICT`).
+- [x] Strict SPA CSRF protection with `CookieCsrfTokenRepository` (`XSRF-TOKEN` cookie, `X-XSRF-TOKEN` header validation).
+- [x] Password hashing with `BCryptPasswordEncoder(12)`.
+- [x] Brute-force throttling: 5 consecutive failed attempts lock account for 15 minutes (`AccountLockedException`, 423 Locked).
+- [x] Account status enforcement (`ACTIVE`, `SUSPENDED`, `INACTIVE`) blocking logins (`AccountDisabledException`, 403 Forbidden).
+- [x] Endpoints: `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/auth/me`, `GET /api/v1/auth/csrf`, `PATCH /api/v1/users/{id}/status`.
+- [x] Configurable administrator bootstrap runner via environment variables (`INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`).
+- [x] Frontend `AuthContext`, `useAuth` hook, and session restoration on mount.
+- [x] `ProtectedRoute` with optional role authorization check.
+- [x] Polished `LoginPage`, `ProfilePage`, `ForbiddenPage` (403), and role-aware `Navbar`.
+- [x] Comprehensive backend tests (18 passed) and frontend tests (22 passed).
+
+---
+
+### Phase 04: Equipment Inventory & Laboratory Module
 **Goal**: Implement laboratory management, hierarchical equipment categories, physical instrument tracking, and operational status transitions.
 
 **Deliverables**:

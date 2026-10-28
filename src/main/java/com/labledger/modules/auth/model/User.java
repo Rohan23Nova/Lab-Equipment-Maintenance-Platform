@@ -55,6 +55,13 @@ public class User {
     @Builder.Default
     private Set<UserRole> roles = new HashSet<>();
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "lockout_until")
+    private Instant lockoutUntil;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

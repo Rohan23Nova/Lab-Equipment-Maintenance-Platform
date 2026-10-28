@@ -1,27 +1,43 @@
 import React from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Hero } from '@/components/landing/Hero';
-import { ProductPreview } from '@/components/landing/ProductPreview';
-import { Features } from '@/components/landing/Features';
-import { Workflow } from '@/components/landing/Workflow';
-import { ArchitectureHighlight } from '@/components/landing/ArchitectureHighlight';
-import { CtaSection } from '@/components/landing/CtaSection';
-import { Footer } from '@/components/layout/Footer';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/context/AuthContext';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { LandingPage } from '@/pages/LandingPage';
+import { LoginPage } from '@/pages/LoginPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { ForbiddenPage } from '@/pages/ForbiddenPage';
+
+export const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forbidden" element={<ForbiddenPage />} />
+
+      {/* Authenticated Application Routes */}
+      <Route
+        path="/app/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fallback to Public Landing */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
 
 export const App: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors">
-      <Navbar />
-      <main className="flex-1">
-        <Hero />
-        <ProductPreview />
-        <Features />
-        <Workflow />
-        <ArchitectureHighlight />
-        <CtaSection />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 
