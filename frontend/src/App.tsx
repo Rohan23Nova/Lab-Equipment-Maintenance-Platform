@@ -9,6 +9,8 @@ import { ForbiddenPage } from '@/pages/ForbiddenPage';
 import { EquipmentListPage } from '@/pages/inventory/EquipmentListPage';
 import { EquipmentDetailPage } from '@/pages/inventory/EquipmentDetailPage';
 import { LaboratoryListPage } from '@/pages/inventory/LaboratoryListPage';
+import { MyReservationsPage } from '@/pages/reservation/MyReservationsPage';
+import { ApprovalsQueuePage } from '@/pages/reservation/ApprovalsQueuePage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -48,6 +50,22 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <LaboratoryListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/reservations"
+        element={
+          <ProtectedRoute>
+            <MyReservationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/approvals"
+        element={
+          <ProtectedRoute requiredRoles={['ROLE_ADMIN', 'ROLE_LAB_ASSISTANT']}>
+            <ApprovalsQueuePage />
           </ProtectedRoute>
         }
       />

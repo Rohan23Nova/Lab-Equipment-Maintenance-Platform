@@ -9,6 +9,8 @@ import { EquipmentStatusModal } from '@/components/inventory/EquipmentStatusModa
 import { EquipmentFormModal } from '@/components/inventory/EquipmentFormModal';
 import { ArchiveEquipmentModal } from '@/components/inventory/ArchiveEquipmentModal';
 import { AttachDocumentModal } from '@/components/inventory/AttachDocumentModal';
+import { EquipmentScheduleTimeline } from '@/components/reservation/EquipmentScheduleTimeline';
+import { CreateReservationModal } from '@/components/reservation/CreateReservationModal';
 import { EquipmentDetail, EquipmentDocumentType } from '@/types/inventory';
 import { inventoryApi } from '@/lib/inventoryApi';
 import { useAuth } from '@/context/AuthContext';
@@ -38,13 +40,15 @@ export const EquipmentDetailPage: React.FC = () => {
   const [equipment, setEquipment] = useState<EquipmentDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'audit' | 'documents'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'audit' | 'documents'>('overview');
 
   // Modals
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isAttachDocModalOpen, setIsAttachDocModalOpen] = useState(false);
+  const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+  const [scheduleRefreshKey, setScheduleRefreshKey] = useState(0);
 
   // Role permissions
   const canUpdateStatus =
@@ -201,6 +205,18 @@ export const EquipmentDetailPage: React.FC = () => {
 
                 {/* Action buttons */}
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                  {equipment.status !== 'ARCHIVED' && equipment.status !== 'UNDER_MAINTENANCE' && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setIsReserveModalOpen(true)}
+                      className="gap-1.5 text-ink-950 font-semibold"
+                    >
+                      <Calendar className="w-4 h-4 text-ink-950" />
+                      <span>Reserve Instrument</span>
+                    </Button>
+                  )}
+
                   {canUpdateStatus && equipment.status !== 'ARCHIVED' && (
                     <Button variant="secondary" size="sm" onClick={() => setIsStatusModalOpen(true)}>
                       <RefreshCw className="w-4 h-4 mr-1.5 text-accent-lime" />
@@ -240,6 +256,17 @@ export const EquipmentDetailPage: React.FC = () => {
                   }`}
                 >
                   Specifications & Facility
+                </button>
+                <button
+                  onClick={() => setActiveTab('schedule')}
+                  className={`pb-2 font-medium transition-colors border-b-2 flex items-center gap-1.5 ${
+                    activeTab === 'schedule'
+                      ? 'border-accent-lime text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 text-accent-lime" />
+                  <span>Schedule & Availability</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('audit')}
@@ -382,6 +409,19 @@ export const EquipmentDetailPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT: Schedule & Reservations */}
+            {activeTab === 'schedule' && (
+              <div className="space-y-6">
+                <EquipmentScheduleTimeline
+                  key={scheduleRefreshKey}
+                  equipmentId={equipment.id}
+                  equipmentName={equipment.name}
+                  onOpenBookingModal={() => setIsReserveModalOpen(true)}
+                  isReservable={equipment.status !== 'ARCHIVED' && equipment.status !== 'UNDER_MAINTENANCE'}
+                />
               </div>
             )}
 
@@ -573,6 +613,18 @@ export const EquipmentDetailPage: React.FC = () => {
           isOpen={isAttachDocModalOpen}
           onClose={() => setIsAttachDocModalOpen(false)}
           onSuccess={() => loadEquipment()}
+        />
+      )}
+
+      {isReserveModalOpen && equipment && (
+        <CreateReservationModal
+          isOpen={isReserveModalOpen}
+          equipment={equipment}
+          onClose={() => setIsReserveModalOpen(false)}
+          onSuccess={() => {
+            setIsReserveModalOpen(false);
+            setScheduleRefreshKey((prev) => prev + 1);
+          }}
         />
       )}
     </div>

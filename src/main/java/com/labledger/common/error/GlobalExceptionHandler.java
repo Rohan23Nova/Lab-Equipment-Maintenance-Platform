@@ -8,6 +8,7 @@ import com.labledger.common.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -132,6 +133,26 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
         problem.setTitle("Business Rule Violation");
         problem.setType(URI.create("https://labledger.university.edu/errors/business-rule"));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+        log.warn("Database constraint violation on [{}]: {}", request.getRequestURI(), ex.getMessage());
+
+        String detail = "The operation could not be completed due to a database integrity constraint conflict.";
+        String message = ex.getMessage() != null ? ex.getMessage() : "";
+        if (message.contains("exclude_overlapping_reservations")) {
+            detail = "Schedule collision: The requested equipment slot has already been reserved or confirmed by another user.";
+        } else if (message.contains("chk_reservation_time_interval")) {
+            detail = "Reservation interval violation: Start time must precede end time.";
+        }
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detail);
+        problem.setTitle("Schedule Conflict");
+        problem.setType(URI.create("https://labledger.university.edu/errors/schedule-conflict"));
         problem.setInstance(URI.create(request.getRequestURI()));
         problem.setProperty("timestamp", Instant.now());
         return problem;

@@ -27,6 +27,7 @@ export const Navbar: React.FC = () => {
   };
 
   const highestRole = user?.roles[0]?.replace('ROLE_', '') || 'USER';
+  const canApprove = user?.roles.some((r) => r === 'ROLE_ADMIN' || r === 'ROLE_LAB_ASSISTANT');
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/80 transition-colors">
@@ -61,6 +62,21 @@ export const Navbar: React.FC = () => {
               >
                 Laboratories
               </Link>
+              <Link
+                to="/app/reservations"
+                className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+              >
+                Reservations
+              </Link>
+              {canApprove && (
+                <Link
+                  to="/app/approvals"
+                  className="text-foreground hover:text-primary transition-colors py-1 font-medium flex items-center gap-1.5"
+                >
+                  <span>Approvals</span>
+                  <span className="w-2 h-2 rounded-full bg-accent-lime"></span>
+                </Link>
+              )}
               <Link
                 to="/app/profile"
                 className="text-foreground hover:text-primary transition-colors py-1 font-medium"
@@ -188,6 +204,25 @@ export const Navbar: React.FC = () => {
                 >
                   Laboratory Facilities
                 </Link>
+                <Link
+                  to="/app/reservations"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  My Reservations
+                </Link>
+                {canApprove && (
+                  <Link
+                    to="/app/approvals"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold flex items-center justify-between"
+                  >
+                    <span>Approvals Queue</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-lime text-ink-950 font-bold">
+                      Staff
+                    </span>
+                  </Link>
+                )}
                 <Link
                   to="/app/profile"
                   onClick={() => setMobileMenuOpen(false)}

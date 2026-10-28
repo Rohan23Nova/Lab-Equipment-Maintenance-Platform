@@ -1,5 +1,6 @@
 package com.labledger.modules.inventory.service;
 
+import com.labledger.common.exception.BusinessRuleException;
 import com.labledger.common.exception.ConflictException;
 import com.labledger.common.exception.ResourceNotFoundException;
 import com.labledger.modules.auth.model.User;
@@ -215,6 +216,22 @@ public class EquipmentService {
 
         EquipmentDocument saved = documentRepository.save(doc);
         return toDocumentResponse(saved);
+    }
+
+    public Equipment getReservableEquipment(UUID equipmentId) {
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment", equipmentId));
+
+        if (equipment.getStatus() == EquipmentStatus.ARCHIVED) {
+            throw new BusinessRuleException("Equipment instrument '" + equipment.getAssetTag() + "' has been decommissioned and cannot be reserved");
+        }
+        if (equipment.getStatus() == EquipmentStatus.UNDER_MAINTENANCE) {
+            throw new BusinessRuleException("Equipment instrument '" + equipment.getAssetTag() + "' is currently under maintenance and unavailable for booking");
+        }
+        if (!equipment.getLaboratory().isActive()) {
+            throw new BusinessRuleException("Laboratory facility '" + equipment.getLaboratory().getName() + "' is currently inactive");
+        }
+        return equipment;
     }
 
     private User resolveUser(Authentication authentication) {
