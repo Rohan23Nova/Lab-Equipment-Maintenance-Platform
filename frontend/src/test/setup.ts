@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Robust in-memory mock for localStorage across Node 22+ / 26 and jsdom
 const storage: Record<string, string> = {};
@@ -51,3 +52,14 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock scrollTo / scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = () => {};
 window.scrollTo = () => {};
+
+// Default fetch mock to prevent unhandled background calls in tests
+if (!global.fetch) {
+  global.fetch = vi.fn().mockImplementation(() =>
+    Promise.resolve({
+      ok: false,
+      status: 503,
+      json: async () => ({ title: 'Service Unavailable', status: 503 }),
+    } as unknown as Response)
+  );
+}

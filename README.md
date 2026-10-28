@@ -140,7 +140,7 @@ graph TD
 
 - [x] **Phase 00: Project Foundation** — Architecture blueprints, data model specifications, security model, testing strategy, ADRs, code formatting, and Git baseline.
 - [x] **Phase 01: Visual Identity & Landing Page** — Design tokens, brand marks, accessible UI primitives, responsive public landing page, interactive product preview console, and persistent light/dark themes.
-- [ ] **Phase 02: Authentication & User Management** — User entities, BCrypt hashing, server-side session cookies, CSRF handshake, RBAC guards, and user profile management.
+- [x] **Phase 02: Core Backend Foundation & Database Integration** — Maven setup, Spring Boot 3.4.3 on Java 21, PostgreSQL integration, Flyway migrations, RFC 7807 problem details, health endpoints, and centralized frontend API client.
 - [ ] **Phase 03: Equipment Inventory Module** — Laboratories, equipment categories, physical assets, status lifecycle (`AVAILABLE`, `IN_USE`, `UNDER_MAINTENANCE`), search, and filters.
 - [ ] **Phase 04: Reservations & Scheduling Engine** — Calendar scheduler, half-open interval validation, GiST exclusion constraints, approval workflows, and check-in/out.
 - [ ] **Phase 05: Fault Reports, Maintenance & Notifications** — Fault reporting, triage, work orders, spare parts consumption, asynchronous event notifications.

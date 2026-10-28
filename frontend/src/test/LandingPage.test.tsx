@@ -1,9 +1,25 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { App } from '@/App';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { apiClient } from '@/lib/apiClient';
 
 describe('Landing Page App', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getSystemStatus').mockResolvedValue({
+      success: true,
+      message: 'OK',
+      data: {
+        application: 'LabLedger Platform',
+        version: '0.1.0-SNAPSHOT',
+        status: 'UP',
+        serverTimeUtc: '2026-10-28T15:00:00Z',
+        activeProfiles: ['dev'],
+        database: { connected: true, product: 'PostgreSQL', version: '15.14' },
+      },
+      timestamp: '2026-10-28T15:00:00Z',
+    });
+  });
   it('renders navbar, hero, preview, features, and footer sections', () => {
     render(
       <ThemeProvider>

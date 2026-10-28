@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Button } from '@/components/ui/Button';
+import { BackendStatusBadge } from '@/components/common/BackendStatusBadge';
 import { useTheme } from '@/context/ThemeContext';
 import { Moon, Sun, Menu, X, ArrowUpRight } from 'lucide-react';
 
@@ -20,13 +21,18 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo & Wordmark */}
-        <a
-          href="#"
-          className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md p-1"
-          aria-label="LabLedger Home"
-        >
-          <Wordmark showTagline={false} size="md" />
-        </a>
+        <div className="flex items-center gap-4">
+          <a
+            href="#"
+            className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md p-1"
+            aria-label="LabLedger Home"
+          >
+            <Wordmark showTagline={false} size="md" />
+          </a>
+          <div className="hidden lg:block">
+            <BackendStatusBadge />
+          </div>
+        </div>
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground" aria-label="Main Navigation">
