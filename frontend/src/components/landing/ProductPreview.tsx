@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -140,6 +141,7 @@ const SAMPLE_WORK_ORDERS: PreviewWorkOrder[] = [
 ];
 
 export const ProductPreview: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'inventory' | 'reservations' | 'maintenance'>('inventory');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLab, setSelectedLab] = useState<string>('ALL');
@@ -336,7 +338,7 @@ export const ProductPreview: React.FC = () => {
                             variant={item.status === 'AVAILABLE' ? 'primary' : 'outline'}
                             size="sm"
                             disabled={item.status === 'UNDER_MAINTENANCE'}
-                            onClick={() => alert(`Preview demonstration: In Phase 04, this reserves slot on ${item.assetTag}.`)}
+                            onClick={() => navigate('/login')}
                           >
                             {item.status === 'AVAILABLE'
                               ? 'Book Slot'
@@ -397,7 +399,7 @@ export const ProductPreview: React.FC = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => alert('Preview mode: Reservation actions will be activated in Phase 04.')}
+                        onClick={() => navigate('/login')}
                       >
                         Details
                       </Button>
@@ -452,7 +454,7 @@ export const ProductPreview: React.FC = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => alert('Preview mode: Work order triage will be activated in Phase 05.')}
+                        onClick={() => navigate('/login')}
                       >
                         Inspect Ticket
                       </Button>

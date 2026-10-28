@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { WorkOrderStatusBadge } from '@/components/maintenance/WorkOrderStatusBadge';
 import { WorkOrderPriorityBadge } from '@/components/maintenance/WorkOrderPriorityBadge';
 import { UpdateWorkOrderModal } from '@/components/maintenance/UpdateWorkOrderModal';
@@ -33,6 +33,7 @@ import {
 
 export const WorkOrdersPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<'ALL' | 'MY_TASKS'>('ALL');
   const [workOrdersData, setWorkOrdersData] = useState<PageResponse<MaintenanceWorkOrderSummary>>({
     content: [],
@@ -131,10 +132,8 @@ export const WorkOrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'Work Orders', href: '/app/work-orders' }]}>
+      <div className="space-y-6">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-6">
           <div>
@@ -426,7 +425,7 @@ export const WorkOrdersPage: React.FC = () => {
             )}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Modals */}
       {updatingWorkOrder && (
@@ -447,13 +446,12 @@ export const WorkOrdersPage: React.FC = () => {
           isOpen={!!inspectingWorkOrder}
           onClose={() => setInspectingWorkOrder(null)}
           onSuccess={() => {
+            toast.success('Equipment returned to service successfully.');
             setInspectingWorkOrder(null);
             loadWorkOrders();
           }}
         />
       )}
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };

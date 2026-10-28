@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useToast } from '@/context/ToastContext';
 import { maintenanceApi } from '@/lib/maintenanceApi';
 import { MaintenanceWorkOrder, NoteType } from '@/types/maintenance';
 import { WorkOrderStatusBadge } from '@/components/maintenance/WorkOrderStatusBadge';
@@ -35,6 +35,7 @@ export const WorkOrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [workOrder, setWorkOrder] = useState<MaintenanceWorkOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,9 +82,10 @@ export const WorkOrderDetailPage: React.FC = () => {
     setIsStartingWork(true);
     try {
       await maintenanceApi.startWorkOrder(id);
+      toast.success('Work order commenced. Status updated to IN_PROGRESS.');
       await loadWorkOrder();
     } catch (err: any) {
-      alert(err.message || 'Failed to start work on this order');
+      toast.error(err.message || 'Failed to start work on this order');
     } finally {
       setIsStartingWork(false);
     }
@@ -100,6 +102,7 @@ export const WorkOrderDetailPage: React.FC = () => {
         noteType,
         notes: noteContent.trim(),
       });
+      toast.success('Technician progress note recorded.');
       setNoteContent('');
       await loadWorkOrder();
     } catch (err: any) {
@@ -134,10 +137,13 @@ export const WorkOrderDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppLayout
+      breadcrumbs={[
+        { label: 'Work Orders', href: '/app/work-orders' },
+        { label: workOrder ? workOrder.workOrderNumber : 'Order Detail' },
+      ]}
+    >
+      <div>
         {/* Navigation / Breadcrumb */}
         <div className="mb-6 flex items-center justify-between">
           <Link
@@ -565,7 +571,10 @@ export const WorkOrderDetailPage: React.FC = () => {
           <UpdateWorkOrderModal
             isOpen={isUpdateModalOpen}
             onClose={() => setIsUpdateModalOpen(false)}
-            onSuccess={() => loadWorkOrder()}
+            onSuccess={() => {
+              toast.success('Work order status and work logs updated.');
+              loadWorkOrder();
+            }}
             workOrder={workOrder}
           />
         )}
@@ -575,13 +584,14 @@ export const WorkOrderDetailPage: React.FC = () => {
           <ReturnToServiceModal
             isOpen={isReturnToServiceModalOpen}
             onClose={() => setIsReturnToServiceModalOpen(false)}
-            onSuccess={() => loadWorkOrder()}
+            onSuccess={() => {
+              toast.success('Return-to-service protocol verified. Equipment restored.');
+              loadWorkOrder();
+            }}
             workOrder={workOrder}
           />
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

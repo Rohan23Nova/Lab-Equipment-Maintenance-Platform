@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { RejectReservationModal } from '@/components/reservation/RejectReservationModal';
 import { ReservationSummary } from '@/types/reservation';
 import { reservationApi } from '@/lib/reservationApi';
@@ -24,6 +24,7 @@ import {
 
 export const ApprovalsQueuePage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [approvalsData, setApprovalsData] = useState<PageResponse<ReservationSummary> | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +65,9 @@ export const ApprovalsQueuePage: React.FC = () => {
     setSuccessMessage(null);
     try {
       await reservationApi.approveReservation(res.id);
-      setSuccessMessage(`Reservation for ${res.equipmentName} by ${res.userFullName} has been approved.`);
+      const msg = `Reservation for ${res.equipmentName} by ${res.userFullName} has been approved.`;
+      setSuccessMessage(msg);
+      toast.success(msg);
       await loadApprovals();
     } catch (err: unknown) {
       console.error('Failed to approve reservation:', err);
@@ -110,10 +113,8 @@ export const ApprovalsQueuePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'Approvals Queue', href: '/app/approvals' }]}>
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-6">
           <div>
@@ -324,7 +325,7 @@ export const ApprovalsQueuePage: React.FC = () => {
             )}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Reject Reservation Modal */}
       {rejectingReservation && (
@@ -333,14 +334,14 @@ export const ApprovalsQueuePage: React.FC = () => {
           reservation={rejectingReservation}
           onClose={() => setRejectingReservation(null)}
           onSuccess={() => {
+            const msg = `Reservation request for ${rejectingReservation.equipmentName} has been rejected.`;
             setRejectingReservation(null);
-            setSuccessMessage(`Reservation request for ${rejectingReservation.equipmentName} has been rejected.`);
+            setSuccessMessage(msg);
+            toast.info(msg);
             loadApprovals();
           }}
         />
       )}
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { Badge } from '@/components/ui/Badge';
 import { EquipmentStatusBadge, EquipmentConditionBadge } from '@/components/inventory/EquipmentBadges';
 import { EquipmentStatusModal } from '@/components/inventory/EquipmentStatusModal';
@@ -39,6 +39,7 @@ export const EquipmentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [equipment, setEquipment] = useState<EquipmentDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,10 +138,13 @@ export const EquipmentDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <AppLayout
+      breadcrumbs={[
+        { label: 'Equipment Inventory', href: '/app/equipment' },
+        { label: 'Instrument Details' },
+      ]}
+    >
+      <div>
         {/* Navigation Breadcrumb / Back button */}
         <div className="mb-6">
           <Link
@@ -605,9 +609,7 @@ export const EquipmentDetailPage: React.FC = () => {
             )}
           </div>
         )}
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Modals */}
       {isStatusModalOpen && equipment && (
@@ -615,7 +617,10 @@ export const EquipmentDetailPage: React.FC = () => {
           equipment={equipment}
           isOpen={isStatusModalOpen}
           onClose={() => setIsStatusModalOpen(false)}
-          onSuccess={() => loadEquipment()}
+          onSuccess={() => {
+            toast.success('Equipment lifecycle status updated.');
+            loadEquipment();
+          }}
           onUpdateStatus={inventoryApi.updateEquipmentStatus}
         />
       )}
@@ -625,7 +630,10 @@ export const EquipmentDetailPage: React.FC = () => {
           isOpen={isEditModalOpen}
           initialData={equipment}
           onClose={() => setIsEditModalOpen(false)}
-          onSuccess={() => loadEquipment()}
+          onSuccess={() => {
+            toast.success('Equipment specifications updated.');
+            loadEquipment();
+          }}
         />
       )}
 
@@ -634,7 +642,10 @@ export const EquipmentDetailPage: React.FC = () => {
           equipment={equipment}
           isOpen={isArchiveModalOpen}
           onClose={() => setIsArchiveModalOpen(false)}
-          onSuccess={() => loadEquipment()}
+          onSuccess={() => {
+            toast.success('Equipment archived from active ledger.');
+            loadEquipment();
+          }}
           onArchive={inventoryApi.archiveEquipment}
         />
       )}
@@ -644,7 +655,10 @@ export const EquipmentDetailPage: React.FC = () => {
           equipment={equipment}
           isOpen={isAttachDocModalOpen}
           onClose={() => setIsAttachDocModalOpen(false)}
-          onSuccess={() => loadEquipment()}
+          onSuccess={() => {
+            toast.success('Document attached to equipment repository.');
+            loadEquipment();
+          }}
         />
       )}
 
@@ -654,6 +668,7 @@ export const EquipmentDetailPage: React.FC = () => {
           equipment={equipment}
           onClose={() => setIsReserveModalOpen(false)}
           onSuccess={() => {
+            toast.success('Reservation request submitted successfully.');
             setIsReserveModalOpen(false);
             setScheduleRefreshKey((prev) => prev + 1);
           }}
@@ -665,6 +680,7 @@ export const EquipmentDetailPage: React.FC = () => {
           isOpen={isReportFaultModalOpen}
           onClose={() => setIsReportFaultModalOpen(false)}
           onSuccess={() => {
+            toast.success('Defect report submitted for triage.');
             setIsReportFaultModalOpen(false);
             loadEquipment();
           }}
@@ -673,6 +689,6 @@ export const EquipmentDetailPage: React.FC = () => {
           equipmentAssetTag={equipment.assetTag}
         />
       )}
-    </div>
+    </AppLayout>
   );
 };

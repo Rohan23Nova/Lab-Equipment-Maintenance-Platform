@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -34,10 +33,8 @@ export const ProfilePage: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors">
-      <Navbar />
-
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <AppLayout breadcrumbs={[{ label: 'Workspace Profile', href: '/app/profile' }]} maxWidth="max-w-5xl">
+      <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-border/80 gap-4">
           <div>
             <div className="flex items-center gap-3">
@@ -215,9 +212,7 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

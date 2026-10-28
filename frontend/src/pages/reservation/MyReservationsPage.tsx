@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { ReservationStatusBadge } from '@/components/reservation/ReservationStatusBadge';
 import { CancelReservationModal } from '@/components/reservation/CancelReservationModal';
 import { ReservationStatus, ReservationSummary } from '@/types/reservation';
@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export const MyReservationsPage: React.FC = () => {
+  const toast = useToast();
   const [reservationsData, setReservationsData] = useState<PageResponse<ReservationSummary> | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ReservationStatus | 'ALL'>('ALL');
   const [currentPage, setCurrentPage] = useState(0);
@@ -101,10 +102,8 @@ export const MyReservationsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'My Reservations', href: '/app/reservations' }]}>
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-6">
           <div>
@@ -295,7 +294,7 @@ export const MyReservationsPage: React.FC = () => {
             )}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Cancel Reservation Modal */}
       {cancellingReservation && (
@@ -304,13 +303,12 @@ export const MyReservationsPage: React.FC = () => {
           reservation={cancellingReservation}
           onClose={() => setCancellingReservation(null)}
           onSuccess={() => {
+            toast.info('Reservation successfully cancelled.');
             setCancellingReservation(null);
             loadReservations();
           }}
         />
       )}
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };

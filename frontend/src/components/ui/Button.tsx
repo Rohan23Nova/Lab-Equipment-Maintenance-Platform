@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'lime' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'lime' | 'danger' | 'destructive';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   isLoading?: boolean;
 }
@@ -35,6 +35,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lime:
         'bg-accent-lime text-zinc-950 font-semibold hover:bg-accent-lime/90 active:bg-accent-lime/80 shadow-subtle',
       danger:
+        'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/95',
+      destructive:
         'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/95',
     };
 

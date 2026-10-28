@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { analyticsApi } from '@/lib/analyticsApi';
 import { inventoryApi } from '@/lib/inventoryApi';
 import {
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export const ReportsPage: React.FC = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<'inventory' | 'utilization' | 'maintenance' | 'overdue' | 'failures'>('inventory');
   const [timeRangeDays, setTimeRangeDays] = useState<number>(30);
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
@@ -98,14 +99,13 @@ export const ReportsPage: React.FC = () => {
 
     let reportKey = activeTab === 'overdue' ? 'overdue-maintenance' : activeTab === 'failures' ? 'repeated-failures' : activeTab;
     const url = analyticsApi.getExportUrl(reportKey, filter);
+    toast.success('Report export initiated. Downloading sanitized CSV...');
     window.location.href = url;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'Institutional Reports', href: '/app/reports' }]}>
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
           <div className="space-y-1">
@@ -462,9 +462,7 @@ export const ReportsPage: React.FC = () => {
             )}
           </div>
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };

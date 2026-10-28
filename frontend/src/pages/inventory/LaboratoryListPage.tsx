@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useToast } from '@/context/ToastContext';
 import { LaboratoryFormModal } from '@/components/inventory/LaboratoryFormModal';
 import { Laboratory } from '@/types/inventory';
 import { inventoryApi } from '@/lib/inventoryApi';
@@ -21,6 +21,7 @@ import {
 
 export const LaboratoryListPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
   const [activeOnly, setActiveOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,10 +63,8 @@ export const LaboratoryListPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <AppLayout breadcrumbs={[{ label: 'Laboratory Facilities', href: '/app/laboratories' }]}>
+      <div>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-border">
           <div>
@@ -229,9 +228,7 @@ export const LaboratoryListPage: React.FC = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Modal */}
       {isModalOpen && (
@@ -240,10 +237,11 @@ export const LaboratoryListPage: React.FC = () => {
           initialData={selectedLabForEdit}
           onClose={() => setIsModalOpen(false)}
           onSuccess={() => {
+            toast.success('Laboratory facility saved successfully.');
             loadLaboratories();
           }}
         />
       )}
-    </div>
+    </AppLayout>
   );
 };

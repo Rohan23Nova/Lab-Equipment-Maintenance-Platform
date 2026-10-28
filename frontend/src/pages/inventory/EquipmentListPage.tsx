@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { EquipmentStatusBadge, EquipmentConditionBadge } from '@/components/inventory/EquipmentBadges';
 import { EquipmentFormModal } from '@/components/inventory/EquipmentFormModal';
 import {
@@ -31,6 +31,7 @@ import {
 
 export const EquipmentListPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read URL query params
@@ -133,10 +134,8 @@ export const EquipmentListPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <AppLayout breadcrumbs={[{ label: 'Equipment Inventory', href: '/app/equipment' }]}>
+      <div>
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-border">
           <div>
@@ -278,11 +277,16 @@ export const EquipmentListPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Error notification */}
+        {/* Error notification with Retry guidance */}
         {errorMessage && (
-          <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-sm flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <p>{errorMessage}</p>
+          <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-sm flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p>{errorMessage}</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => loadEquipment()}>
+              Retry
+            </Button>
           </div>
         )}
 
@@ -316,9 +320,12 @@ export const EquipmentListPage: React.FC = () => {
                     <td colSpan={7} className="py-12 text-center text-muted-foreground">
                       <SlidersHorizontal className="w-8 h-8 mx-auto text-muted-foreground/60 mb-2" />
                       <p className="font-medium text-foreground">No matching laboratory instruments found</p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1 mb-4">
                         Try modifying search parameters or clearing filters.
                       </p>
+                      <Button variant="outline" size="sm" onClick={handleResetFilters}>
+                        Clear all filters
+                      </Button>
                     </td>
                   </tr>
                 ) : (
@@ -422,9 +429,7 @@ export const EquipmentListPage: React.FC = () => {
             </div>
           )}
         </div>
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Register Instrument Modal */}
       {isCreateModalOpen && (
@@ -432,10 +437,11 @@ export const EquipmentListPage: React.FC = () => {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={() => {
+            toast.success('Laboratory instrument registered into institutional registry.');
             loadEquipment();
           }}
         />
       )}
-    </div>
+    </AppLayout>
   );
 };

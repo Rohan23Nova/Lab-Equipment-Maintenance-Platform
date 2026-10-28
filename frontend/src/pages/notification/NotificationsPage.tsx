@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { notificationApi } from '@/lib/notificationApi';
 import { NotificationItem } from '@/types/notification';
 import { PageResponse } from '@/types/inventory';
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export const NotificationsPage: React.FC = () => {
+  const toast = useToast();
   const [notificationsData, setNotificationsData] = useState<PageResponse<NotificationItem>>({
     content: [],
     pageNumber: 0,
@@ -55,12 +56,13 @@ export const NotificationsPage: React.FC = () => {
   const handleMarkAllRead = async () => {
     try {
       await notificationApi.markAllAsRead();
+      toast.success('All notifications marked as read.');
       setNotificationsData((prev) => ({
         ...prev,
         content: prev.content.map((n) => ({ ...n, isRead: true })),
       }));
     } catch {
-      // Graceful error
+      toast.error('Failed to mark notifications as read.');
     }
   };
 
@@ -77,10 +79,8 @@ export const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar />
-
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'Notifications', href: '/app/notifications' }]} maxWidth="max-w-5xl">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
           <div className="space-y-1">
@@ -219,15 +219,13 @@ export const NotificationsPage: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Preferences Modal */}
       <NotificationPreferencesModal
         isOpen={isPreferencesOpen}
         onClose={() => setIsPreferencesOpen(false)}
       />
-    </div>
+    </AppLayout>
   );
 };

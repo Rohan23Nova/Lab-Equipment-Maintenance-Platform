@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import { FaultSeverityBadge } from '@/components/maintenance/FaultSeverityBadge';
 import { FaultStatusBadge } from '@/components/maintenance/FaultStatusBadge';
 import { TriageFaultModal } from '@/components/maintenance/TriageFaultModal';
@@ -26,6 +26,7 @@ export const FaultDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [fault, setFault] = useState<FaultReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,9 +69,11 @@ export const FaultDetailPage: React.FC = () => {
     if (!id) return;
     try {
       await maintenanceApi.closeFault(id);
+      toast.info('Defect report officially closed.');
       await loadFault();
     } catch (err) {
       console.error('Failed to close fault report:', err);
+      toast.error('Failed to close defect report.');
     }
   };
 
@@ -80,10 +83,12 @@ export const FaultDetailPage: React.FC = () => {
     setIsResolving(true);
     try {
       await maintenanceApi.resolveFault(id, { resolutionDetails: resolveText.trim() });
+      toast.success('Defect marked as resolved.');
       setShowResolveForm(false);
       await loadFault();
     } catch (err) {
       console.error('Failed to resolve fault:', err);
+      toast.error('Failed to mark fault as resolved.');
     } finally {
       setIsResolving(false);
     }
@@ -127,10 +132,13 @@ export const FaultDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+    <AppLayout
+      breadcrumbs={[
+        { label: 'Fault Reports', href: '/app/faults' },
+        { label: fault ? fault.faultNumber : 'Fault Detail' },
+      ]}
+    >
+      <div className="space-y-6">
         {/* Navigation Breadcrumb */}
         <div>
           <Link
@@ -420,7 +428,7 @@ export const FaultDetailPage: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Modals */}
       {isTriageModalOpen && fault && (
@@ -447,13 +455,12 @@ export const FaultDetailPage: React.FC = () => {
           isOpen={isWorkOrderModalOpen}
           onClose={() => setIsWorkOrderModalOpen(false)}
           onSuccess={(wo) => {
+            toast.success(`Work order ${wo.workOrderNumber} created.`);
             setIsWorkOrderModalOpen(false);
             navigate(`/app/work-orders/${wo.id}`);
           }}
         />
       )}
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };

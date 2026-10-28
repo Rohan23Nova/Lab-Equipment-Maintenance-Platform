@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/Button';
 import { auditApi } from '@/lib/auditApi';
 import { AuditEntityType, AuditLogItem } from '@/types/audit';
@@ -81,10 +80,8 @@ export const AuditLogsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <AppLayout breadcrumbs={[{ label: 'Audit Trail', href: '/app/audit-logs' }]}>
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
           <div className="space-y-1">
@@ -269,9 +266,7 @@ export const AuditLogsPage: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Details Modal */}
       <AuditDetailModal
@@ -279,6 +274,6 @@ export const AuditLogsPage: React.FC = () => {
         isOpen={selectedLog !== null}
         onClose={() => setSelectedLog(null)}
       />
-    </div>
+    </AppLayout>
   );
 };
