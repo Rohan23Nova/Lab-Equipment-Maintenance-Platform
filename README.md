@@ -139,7 +139,7 @@ graph TD
 ## 5. Implementation Roadmap
 
 - [x] **Phase 00: Project Foundation** — Architecture blueprints, data model specifications, security model, testing strategy, ADRs, code formatting, and Git baseline.
-- [ ] **Phase 01: Core Scaffolding, Build & CI Setup** — Maven build setup, Docker Compose for PostgreSQL, React/Vite scaffolding, base error handling (RFC 7807), and GitHub Actions workflow.
+- [x] **Phase 01: Visual Identity & Landing Page** — Design tokens, brand marks, accessible UI primitives, responsive public landing page, interactive product preview console, and persistent light/dark themes.
 - [ ] **Phase 02: Authentication & User Management** — User entities, BCrypt hashing, server-side session cookies, CSRF handshake, RBAC guards, and user profile management.
 - [ ] **Phase 03: Equipment Inventory Module** — Laboratories, equipment categories, physical assets, status lifecycle (`AVAILABLE`, `IN_USE`, `UNDER_MAINTENANCE`), search, and filters.
 - [ ] **Phase 04: Reservations & Scheduling Engine** — Calendar scheduler, half-open interval validation, GiST exclusion constraints, approval workflows, and check-in/out.

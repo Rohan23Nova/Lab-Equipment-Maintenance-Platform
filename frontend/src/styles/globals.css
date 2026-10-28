@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm off-white background */
+    --background: 40 20% 98%;
+    /* Deep ink / charcoal typography */
+    --foreground: 222 24% 13%;
+
+    /* Crisp card & popover surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 222 24% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 24% 13%;
+
+    /* Primary brand deep ink */
+    --primary: 222 24% 13%;
+    --primary-foreground: 40 20% 98%;
+    --primary-muted: 220 10% 40%;
+
+    /* Secondary subtle neutral */
+    --secondary: 40 12% 93%;
+    --secondary-foreground: 222 24% 13%;
+
+    /* Muted elements */
+    --muted: 40 10% 92%;
+    --muted-foreground: 220 10% 44%;
+
+    /* Hover accents */
+    --accent: 40 14% 92%;
+    --accent-foreground: 222 24% 13%;
+
+    /* Restrained electric-lime / chartreuse accent */
+    --accent-lime: 84 78% 46%;
+
+    /* Health & Lifecycle Status Tokens */
+    --status-available: 154 62% 36%;
+    --status-inuse: 215 72% 44%;
+    --status-maintenance: 350 72% 48%;
+    --status-calibration: 36 90% 44%;
+
+    /* Destructive alert */
+    --destructive: 350 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders, inputs and focus rings */
+    --border: 40 14% 88%;
+    --input: 40 14% 88%;
+    --ring: 222 24% 13%;
+
+    /* Restrained border radius */
+    --radius: 0.375rem;
+  }
+
+  .dark {
+    /* Deep charcoal ink background */
+    --background: 222 22% 8%;
+    --foreground: 40 12% 96%;
+
+    /* Dark elevated surfaces */
+    --card: 222 20% 11%;
+    --card-foreground: 40 12% 96%;
+    --popover: 222 20% 11%;
+    --popover-foreground: 40 12% 96%;
+
+    /* Inverted primary */
+    --primary: 40 12% 96%;
+    --primary-foreground: 222 24% 10%;
+    --primary-muted: 220 12% 64%;
+
+    --secondary: 222 18% 16%;
+    --secondary-foreground: 40 12% 96%;
+
+    --muted: 222 16% 16%;
+    --muted-foreground: 220 12% 62%;
+
+    --accent: 222 16% 18%;
+    --accent-foreground: 40 12% 96%;
+
+    /* Vibrant dark-mode chartreuse accent */
+    --accent-lime: 82 88% 54%;
+
+    /* Muted status tokens in dark mode */
+    --status-available: 154 60% 48%;
+    --status-inuse: 215 80% 64%;
+    --status-maintenance: 350 78% 62%;
+    --status-calibration: 36 92% 56%;
+
+    --destructive: 350 78% 62%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 16% 18%;
+    --input: 222 16% 18%;
+    --ring: 82 88% 54%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+/* Tabular numerals for precision scientific instrumentation tables */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

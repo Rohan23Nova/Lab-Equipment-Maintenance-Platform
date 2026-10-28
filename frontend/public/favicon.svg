@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="6" fill="#18181b"/>
+  <!-- Precision grid lines -->
+  <line x1="8" y1="16" x2="24" y2="16" stroke="#3f3f46" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <line x1="16" y1="8" x2="16" y2="24" stroke="#3f3f46" stroke-width="1.5" stroke-dasharray="2 2"/>
+  <!-- Outer precision bracket / instrument viewfinder -->
+  <path d="M10 13V10H13" stroke="#f4f4f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19 10H22V13" stroke="#f4f4f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M22 19V22H19" stroke="#f4f4f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 22H10V19" stroke="#f4f4f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Focus aperture / diamond reticle -->
+  <polygon points="16,11 21,16 16,21 11,16" stroke="#f4f4f5" stroke-width="1.5" fill="none"/>
+  <!-- Chartreuse / Electric Lime focal indicator -->
+  <circle cx="16" cy="16" r="2.5" fill="#a3e635"/>
+</svg>
