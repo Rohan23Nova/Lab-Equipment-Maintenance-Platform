@@ -6,9 +6,11 @@ import com.labledger.common.exception.ResourceNotFoundException;
 import com.labledger.modules.auth.model.User;
 import com.labledger.modules.auth.repository.UserRepository;
 import com.labledger.modules.inventory.dto.*;
+import com.labledger.modules.inventory.event.*;
 import com.labledger.modules.inventory.model.*;
 import com.labledger.modules.inventory.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +34,7 @@ public class EquipmentService {
     private final UserRepository userRepository;
     private final LaboratoryService laboratoryService;
     private final EquipmentCategoryService categoryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PageResponse<EquipmentSummaryResponse> findEquipment(EquipmentSearchCriteria criteria, Pageable pageable) {
         Specification<Equipment> spec = EquipmentSpecifications.withCriteria(criteria);
@@ -104,6 +107,16 @@ public class EquipmentService {
                 .build();
         statusHistoryRepository.save(history);
 
+        eventPublisher.publishEvent(new EquipmentCreatedEvent(
+                saved.getId(),
+                saved.getAssetTag(),
+                saved.getName(),
+                lab.getId(),
+                lab.getName(),
+                actor != null ? actor.getId() : null,
+                actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System"
+        ));
+
         return getEquipmentById(saved.getId());
     }
 
@@ -137,7 +150,17 @@ public class EquipmentService {
         equipment.setDescription(request.description());
         equipment.setSpecifications(request.specifications());
 
-        equipmentRepository.save(equipment);
+        Equipment updated = equipmentRepository.save(equipment);
+        User actor = resolveUser(authentication);
+        eventPublisher.publishEvent(new EquipmentUpdatedEvent(
+                updated.getId(),
+                updated.getAssetTag(),
+                updated.getName(),
+                actor != null ? actor.getId() : null,
+                actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System",
+                "{\"updatedFields\":[\"name\",\"category\",\"laboratory\",\"condition\"]}"
+        ));
+
         return getEquipmentById(id);
     }
 
@@ -161,6 +184,17 @@ public class EquipmentService {
                 .build();
         statusHistoryRepository.save(history);
 
+        eventPublisher.publishEvent(new EquipmentStatusChangedEvent(
+                equipment.getId(),
+                equipment.getAssetTag(),
+                equipment.getName(),
+                previousStatus,
+                request.status(),
+                request.reason() != null ? request.reason() : "Status update",
+                actor != null ? actor.getId() : null,
+                actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System"
+        ));
+
         return getEquipmentById(id);
     }
 
@@ -182,6 +216,17 @@ public class EquipmentService {
                 .notes(notes)
                 .build();
         statusHistoryRepository.save(history);
+
+        eventPublisher.publishEvent(new EquipmentStatusChangedEvent(
+                equipment.getId(),
+                equipment.getAssetTag(),
+                equipment.getName(),
+                previousStatus,
+                newStatus,
+                reason != null ? reason : "Direct status transition",
+                actor != null ? actor.getId() : null,
+                actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System Automation"
+        ));
 
         return equipment;
     }
@@ -205,6 +250,15 @@ public class EquipmentService {
                 .notes(reason != null ? reason.trim() : "Equipment archived and retired from active university scheduling.")
                 .build();
         statusHistoryRepository.save(history);
+
+        eventPublisher.publishEvent(new EquipmentArchivedEvent(
+                equipment.getId(),
+                equipment.getAssetTag(),
+                equipment.getName(),
+                reason != null ? reason : "Decommissioned",
+                actor != null ? actor.getId() : null,
+                actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System"
+        ));
 
         return getEquipmentById(id);
     }

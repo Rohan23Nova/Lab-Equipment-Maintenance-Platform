@@ -6,11 +6,13 @@ import com.labledger.common.exception.ConflictException;
 import com.labledger.common.exception.ResourceNotFoundException;
 import com.labledger.modules.auth.dto.CreateUserRequest;
 import com.labledger.modules.auth.dto.UserResponse;
+import com.labledger.modules.auth.event.UserStatusChangedEvent;
 import com.labledger.modules.auth.model.User;
 import com.labledger.modules.auth.model.UserRole;
 import com.labledger.modules.auth.model.UserStatus;
 import com.labledger.modules.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,6 +33,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final int LOCKOUT_DURATION_MINUTES = 15;
@@ -107,6 +110,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
 
+        UserStatus previousStatus = user.getStatus();
         user.setStatus(newStatus);
         if (newStatus == UserStatus.ACTIVE) {
             user.setFailedLoginAttempts(0);
@@ -114,6 +118,15 @@ public class UserService {
         }
 
         User updated = userRepository.save(user);
+        eventPublisher.publishEvent(new UserStatusChangedEvent(
+                updated.getId(),
+                updated.getEmail(),
+                updated.getFirstName() + " " + updated.getLastName(),
+                previousStatus,
+                newStatus,
+                null,
+                "Administrator"
+        ));
         return UserResponse.fromEntity(updated);
     }
 

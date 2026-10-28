@@ -84,4 +84,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
             @Param("rangeEnd") Instant rangeEnd,
             @Param("statuses") Collection<ReservationStatus> statuses
     );
+
+    /**
+     * Finds upcoming approved reservations starting within the given window for reminders.
+     */
+    @EntityGraph(attributePaths = {"equipment", "user"})
+    @Query("SELECT r FROM Reservation r " +
+           "WHERE r.status = :status " +
+           "AND r.startTime >= :windowStart AND r.startTime <= :windowEnd " +
+           "ORDER BY r.startTime ASC")
+    List<Reservation> findUpcomingReservationsForReminders(
+            @Param("status") ReservationStatus status,
+            @Param("windowStart") Instant windowStart,
+            @Param("windowEnd") Instant windowEnd
+    );
 }

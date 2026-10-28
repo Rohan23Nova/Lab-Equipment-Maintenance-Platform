@@ -10,11 +10,13 @@ import com.labledger.modules.inventory.model.Equipment;
 import com.labledger.modules.inventory.service.EquipmentService;
 import com.labledger.modules.reservation.config.ReservationPolicyProperties;
 import com.labledger.modules.reservation.dto.*;
+import com.labledger.modules.reservation.event.*;
 import com.labledger.modules.reservation.model.Reservation;
 import com.labledger.modules.reservation.model.ReservationStatus;
 import com.labledger.modules.reservation.repository.ReservationRepository;
 import com.labledger.modules.reservation.repository.ReservationSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,6 +39,7 @@ public class ReservationService {
     private final EquipmentService equipmentService;
     private final UserRepository userRepository;
     private final ReservationPolicyProperties policyProperties;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final List<ReservationStatus> ACTIVE_STATUSES =
             List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
@@ -117,6 +120,19 @@ public class ReservationService {
                 .build();
 
         Reservation saved = reservationRepository.save(reservation);
+        eventPublisher.publishEvent(new ReservationCreatedEvent(
+                saved.getId(),
+                saved.getEquipment().getId(),
+                saved.getEquipment().getName(),
+                saved.getEquipment().getAssetTag(),
+                saved.getUser().getId(),
+                saved.getUser().getFirstName() + " " + saved.getUser().getLastName(),
+                saved.getUser().getEmail(),
+                saved.getStartTime(),
+                saved.getEndTime(),
+                saved.getPurpose(),
+                saved.getStatus()
+        ));
         return toResponse(saved);
     }
 
@@ -164,6 +180,19 @@ public class ReservationService {
         reservation.setRejectionReason(null);
 
         Reservation updated = reservationRepository.save(reservation);
+        eventPublisher.publishEvent(new ReservationApprovedEvent(
+                updated.getId(),
+                updated.getEquipment().getId(),
+                updated.getEquipment().getName(),
+                updated.getEquipment().getAssetTag(),
+                updated.getUser().getId(),
+                updated.getUser().getFirstName() + " " + updated.getUser().getLastName(),
+                updated.getUser().getEmail(),
+                staff.getId(),
+                staff.getFirstName() + " " + staff.getLastName(),
+                updated.getStartTime(),
+                updated.getEndTime()
+        ));
         return toResponse(updated);
     }
 
@@ -187,6 +216,18 @@ public class ReservationService {
         reservation.setDecisionAt(Instant.now());
 
         Reservation updated = reservationRepository.save(reservation);
+        eventPublisher.publishEvent(new ReservationRejectedEvent(
+                updated.getId(),
+                updated.getEquipment().getId(),
+                updated.getEquipment().getName(),
+                updated.getEquipment().getAssetTag(),
+                updated.getUser().getId(),
+                updated.getUser().getFirstName() + " " + updated.getUser().getLastName(),
+                updated.getUser().getEmail(),
+                staff != null ? staff.getId() : null,
+                staff != null ? (staff.getFirstName() + " " + staff.getLastName()) : "Staff Authority",
+                updated.getRejectionReason()
+        ));
         return toResponse(updated);
     }
 
@@ -227,6 +268,18 @@ public class ReservationService {
         reservation.setCancellationReason(reason);
 
         Reservation updated = reservationRepository.save(reservation);
+        eventPublisher.publishEvent(new ReservationCancelledEvent(
+                updated.getId(),
+                updated.getEquipment().getId(),
+                updated.getEquipment().getName(),
+                updated.getEquipment().getAssetTag(),
+                updated.getUser().getId(),
+                updated.getUser().getFirstName() + " " + updated.getUser().getLastName(),
+                updated.getUser().getEmail(),
+                actor.getId(),
+                actor.getFirstName() + " " + actor.getLastName(),
+                updated.getCancellationReason()
+        ));
         return toResponse(updated);
     }
 
@@ -386,6 +439,18 @@ public class ReservationService {
         for (Reservation r : activeFuture) {
             r.setStatus(ReservationStatus.CANCELLED);
             r.setCancellationReason(reason != null ? reason : "Cancelled due to equipment maintenance");
+            eventPublisher.publishEvent(new ReservationCancelledEvent(
+                    r.getId(),
+                    r.getEquipment().getId(),
+                    r.getEquipment().getName(),
+                    r.getEquipment().getAssetTag(),
+                    r.getUser().getId(),
+                    r.getUser().getFirstName() + " " + r.getUser().getLastName(),
+                    r.getUser().getEmail(),
+                    actor != null ? actor.getId() : null,
+                    actor != null ? (actor.getFirstName() + " " + actor.getLastName()) : "System Maintenance",
+                    r.getCancellationReason()
+            ));
         }
         reservationRepository.saveAll(activeFuture);
         return activeFuture.stream().map(Reservation::getId).toList();

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { BackendStatusBadge } from '@/components/common/BackendStatusBadge';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { NotificationBell } from '@/components/notification/NotificationBell';
 import { Moon, Sun, Menu, X, ArrowUpRight, User, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -86,13 +87,21 @@ export const Navbar: React.FC = () => {
                 </Link>
               )}
               {canApprove && (
-                <Link
-                  to="/app/approvals"
-                  className="text-foreground hover:text-primary transition-colors py-1 font-medium flex items-center gap-1.5"
-                >
-                  <span>Approvals</span>
-                  <span className="w-2 h-2 rounded-full bg-accent-lime"></span>
-                </Link>
+                <>
+                  <Link
+                    to="/app/approvals"
+                    className="text-foreground hover:text-primary transition-colors py-1 font-medium flex items-center gap-1.5"
+                  >
+                    <span>Approvals</span>
+                    <span className="w-2 h-2 rounded-full bg-accent-lime"></span>
+                  </Link>
+                  <Link
+                    to="/app/audit-logs"
+                    className="text-foreground hover:text-primary transition-colors py-1 font-medium"
+                  >
+                    Audit
+                  </Link>
+                </>
               )}
               <Link
                 to="/app/profile"
@@ -129,6 +138,10 @@ export const Navbar: React.FC = () => {
               <Moon className="w-4 h-4" />
             )}
           </button>
+
+          {isAuthenticated && user && (
+            <NotificationBell />
+          )}
 
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">
@@ -256,6 +269,22 @@ export const Navbar: React.FC = () => {
                     </span>
                   </Link>
                 )}
+                {canApprove && (
+                  <Link
+                    to="/app/audit-logs"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                  >
+                    Audit Trail
+                  </Link>
+                )}
+                <Link
+                  to="/app/notifications"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 rounded-md hover:bg-muted text-foreground transition-colors font-semibold"
+                >
+                  Notifications
+                </Link>
                 <Link
                   to="/app/profile"
                   onClick={() => setMobileMenuOpen(false)}
