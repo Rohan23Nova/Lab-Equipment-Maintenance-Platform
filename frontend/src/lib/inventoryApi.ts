@@ -16,6 +16,8 @@ import {
   UpdateLaboratoryPayload,
   CreateCategoryPayload,
   CreateDocumentPayload,
+  TeachingExperimentSummary,
+  TeachingExperimentDetail,
 } from '@/types/inventory';
 
 export const inventoryApi = {
@@ -122,6 +124,31 @@ export const inventoryApi = {
       '/equipment-categories',
       payload
     );
+    return response.data;
+  },
+
+  // Teaching Experiment endpoints
+  getExperiments: async (params?: { subject?: string; laboratoryId?: string }): Promise<TeachingExperimentSummary[]> => {
+    const searchParams = new URLSearchParams();
+    if (params?.subject) searchParams.set('subject', params.subject);
+    if (params?.laboratoryId) searchParams.set('laboratoryId', params.laboratoryId);
+    const queryString = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    const response = await apiClient.get<ApiResponse<TeachingExperimentSummary[]>>(`/experiments${queryString}`);
+    return response.data;
+  },
+
+  getExperimentById: async (id: string): Promise<TeachingExperimentDetail> => {
+    const response = await apiClient.get<ApiResponse<TeachingExperimentDetail>>(`/experiments/${id}`);
+    return response.data;
+  },
+
+  getExperimentsByEquipment: async (equipmentId: string): Promise<TeachingExperimentSummary[]> => {
+    const response = await apiClient.get<ApiResponse<TeachingExperimentSummary[]>>(`/experiments/by-equipment/${equipmentId}`);
+    return response.data;
+  },
+
+  getExperimentsByLaboratory: async (laboratoryId: string): Promise<TeachingExperimentSummary[]> => {
+    const response = await apiClient.get<ApiResponse<TeachingExperimentSummary[]>>(`/experiments/by-laboratory/${laboratoryId}`);
     return response.data;
   },
 };

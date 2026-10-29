@@ -40,6 +40,40 @@ export interface Laboratory {
   active: boolean;
   managerId?: string;
   managerName?: string;
+  totalEquipmentCount?: number;
+  availableEquipmentCount?: number;
+  experimentCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeachingExperimentSummary {
+  id: string;
+  code: string;
+  title: string;
+  subject: string;
+  objective: string;
+  laboratoryId?: string;
+  laboratoryName?: string;
+  laboratoryCode?: string;
+  manualReference?: string;
+  active: boolean;
+  equipmentCount: number;
+}
+
+export interface TeachingExperimentDetail {
+  id: string;
+  code: string;
+  title: string;
+  subject: string;
+  objective: string;
+  description: string;
+  laboratoryId?: string;
+  laboratoryName?: string;
+  laboratoryCode?: string;
+  manualReference?: string;
+  active: boolean;
+  requiredEquipment: EquipmentSummary[];
   createdAt: string;
   updatedAt: string;
 }

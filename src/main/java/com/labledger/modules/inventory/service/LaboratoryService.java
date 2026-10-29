@@ -7,8 +7,11 @@ import com.labledger.modules.auth.repository.UserRepository;
 import com.labledger.modules.inventory.dto.CreateLaboratoryRequest;
 import com.labledger.modules.inventory.dto.LaboratoryResponse;
 import com.labledger.modules.inventory.dto.UpdateLaboratoryRequest;
+import com.labledger.modules.inventory.model.EquipmentStatus;
 import com.labledger.modules.inventory.model.Laboratory;
+import com.labledger.modules.inventory.repository.EquipmentRepository;
 import com.labledger.modules.inventory.repository.LaboratoryRepository;
+import com.labledger.modules.inventory.repository.TeachingExperimentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,8 @@ public class LaboratoryService {
 
     private final LaboratoryRepository laboratoryRepository;
     private final UserRepository userRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final TeachingExperimentRepository experimentRepository;
 
     public List<LaboratoryResponse> getAllLaboratories(boolean activeOnly) {
         List<Laboratory> labs = activeOnly
@@ -94,6 +99,16 @@ public class LaboratoryService {
                 ? lab.getManager().getFirstName() + " " + lab.getManager().getLastName()
                 : null;
 
+        long totalEquip = equipmentRepository != null
+                ? equipmentRepository.countByLaboratoryIdAndStatusNot(lab.getId(), EquipmentStatus.ARCHIVED)
+                : 0L;
+        long availEquip = equipmentRepository != null
+                ? equipmentRepository.countByLaboratoryIdAndStatus(lab.getId(), EquipmentStatus.AVAILABLE)
+                : 0L;
+        long expCount = experimentRepository != null
+                ? experimentRepository.countByLaboratoryId(lab.getId())
+                : 0L;
+
         return new LaboratoryResponse(
                 lab.getId(),
                 lab.getCode(),
@@ -104,6 +119,9 @@ public class LaboratoryService {
                 lab.isActive(),
                 managerId,
                 managerName,
+                totalEquip,
+                availEquip,
+                expCount,
                 lab.getCreatedAt(),
                 lab.getUpdatedAt()
         );

@@ -13,7 +13,7 @@ import { EquipmentScheduleTimeline } from '@/components/reservation/EquipmentSch
 import { CreateReservationModal } from '@/components/reservation/CreateReservationModal';
 import { EquipmentMaintenanceHistory } from '@/components/maintenance/EquipmentMaintenanceHistory';
 import { ReportFaultModal } from '@/components/maintenance/ReportFaultModal';
-import { EquipmentDetail, EquipmentDocumentType } from '@/types/inventory';
+import { EquipmentDetail, EquipmentDocumentType, TeachingExperimentSummary } from '@/types/inventory';
 import { inventoryApi } from '@/lib/inventoryApi';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -33,6 +33,7 @@ import {
   ExternalLink,
   Plus,
   Wrench,
+  BookOpen,
 } from 'lucide-react';
 
 export const EquipmentDetailPage: React.FC = () => {
@@ -42,9 +43,10 @@ export const EquipmentDetailPage: React.FC = () => {
   const toast = useToast();
 
   const [equipment, setEquipment] = useState<EquipmentDetail | null>(null);
+  const [experiments, setExperiments] = useState<TeachingExperimentSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'schedule' | 'audit' | 'documents' | 'maintenance'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'experiments' | 'schedule' | 'audit' | 'documents' | 'maintenance'>('overview');
 
   // Modals
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
@@ -70,8 +72,15 @@ export const EquipmentDetailPage: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      const data = await inventoryApi.getEquipmentById(id);
+      const [data, exps] = await Promise.all([
+        inventoryApi.getEquipmentById(id),
+        inventoryApi.getExperimentsByEquipment(id).catch((err) => {
+          console.warn('Could not load associated experiments:', err);
+          return [] as TeachingExperimentSummary[];
+        }),
+      ]);
       setEquipment(data);
+      setExperiments(exps);
     } catch (err) {
       console.error('Failed to load instrument details:', err);
       setErrorMessage('The requested laboratory instrument could not be located in the ledger.');
@@ -266,10 +275,10 @@ export const EquipmentDetailPage: React.FC = () => {
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex items-center gap-6 mt-8 pt-4 border-t border-border/80 text-sm">
+              <div className="flex items-center gap-6 mt-8 pt-4 border-t border-border/80 text-sm overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`pb-2 font-medium transition-colors border-b-2 ${
+                  className={`pb-2 font-medium transition-colors border-b-2 shrink-0 ${
                     activeTab === 'overview'
                       ? 'border-accent-lime text-foreground'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -278,8 +287,22 @@ export const EquipmentDetailPage: React.FC = () => {
                   Specifications & Facility
                 </button>
                 <button
+                  onClick={() => setActiveTab('experiments')}
+                  className={`pb-2 font-medium transition-colors border-b-2 flex items-center gap-1.5 shrink-0 ${
+                    activeTab === 'experiments'
+                      ? 'border-accent-lime text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4 text-accent-lime" />
+                  <span>Curriculum Practicals</span>
+                  <span className="text-xs px-1.5 py-0.2 rounded-full bg-muted font-mono">
+                    {experiments.length}
+                  </span>
+                </button>
+                <button
                   onClick={() => setActiveTab('schedule')}
-                  className={`pb-2 font-medium transition-colors border-b-2 flex items-center gap-1.5 ${
+                  className={`pb-2 font-medium transition-colors border-b-2 flex items-center gap-1.5 shrink-0 ${
                     activeTab === 'schedule'
                       ? 'border-accent-lime text-foreground'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -380,6 +403,54 @@ export const EquipmentDetailPage: React.FC = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Curriculum Practical Experiments */}
+                  <div className="p-6 rounded-xl border border-border/80 bg-card shadow-subtle">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <BookOpen className="w-4 h-4 text-accent-lime" />
+                        Curriculum Teaching Experiments
+                      </h2>
+                      <span className="text-xs text-muted-foreground font-mono">
+                        {experiments.length} linked practical{experiments.length === 1 ? '' : 's'}
+                      </span>
+                    </div>
+
+                    {experiments.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">
+                        No undergraduate teaching experiments currently registered for this asset.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {experiments.map((exp) => (
+                          <div
+                            key={exp.id}
+                            className="p-3.5 rounded-lg border border-border/70 bg-muted/20 hover:border-accent-lime/30 transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">
+                                {exp.code}
+                              </span>
+                              <Badge variant="neutral" className="text-[10px]">
+                                {exp.subject}
+                              </Badge>
+                            </div>
+                            <h4 className="text-sm font-semibold text-foreground">
+                              {exp.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              <strong className="text-foreground">Objective:</strong> {exp.objective}
+                            </p>
+                            {exp.manualReference && (
+                              <div className="mt-2 text-[10px] font-mono text-muted-foreground flex items-center gap-1">
+                                <span>Ref: {exp.manualReference}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Column 3: Metadata & Financial Details */}
@@ -439,6 +510,74 @@ export const EquipmentDetailPage: React.FC = () => {
                       <span className="font-mono text-foreground">{formatDateTime(equipment.updatedAt)}</span>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT: Curriculum Practicals */}
+            {activeTab === 'experiments' && (
+              <div className="space-y-6">
+                <div className="p-6 rounded-xl border border-border/80 bg-card shadow-subtle">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
+                    <div>
+                      <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-accent-lime" />
+                        Curriculum Practicals & Lab Experiments
+                      </h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Syllabus experiments and practical course modules that mandate the use of this instrument ({equipment.name}).
+                      </p>
+                    </div>
+                    <span className="text-xs font-mono px-2.5 py-1 rounded bg-secondary text-secondary-foreground shrink-0">
+                      {experiments.length} {experiments.length === 1 ? 'Experiment' : 'Experiments'} Linked
+                    </span>
+                  </div>
+
+                  {experiments.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground text-sm">
+                      <BookOpen className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
+                      <p className="font-medium text-foreground">No curriculum experiments linked</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        This asset is currently not mapped to any formal laboratory syllabus module.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                      {experiments.map((exp) => (
+                        <div
+                          key={exp.id}
+                          className="p-5 rounded-lg border border-border/70 bg-card/60 hover:bg-card hover:border-accent-lime/40 transition-all space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-xs font-mono font-bold text-accent-lime px-2 py-0.5 rounded bg-accent-lime/10 border border-accent-lime/20">
+                                {exp.code}
+                              </span>
+                              <h3 className="text-sm font-semibold text-foreground mt-2 leading-snug">
+                                {exp.title}
+                              </h3>
+                            </div>
+                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
+                              {exp.subject}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2 text-xs">
+                            <div>
+                              <span className="font-medium text-foreground">Objective: </span>
+                              <span className="text-muted-foreground">{exp.objective}</span>
+                            </div>
+                            {exp.manualReference && (
+                              <div className="pt-1 flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                                <FileText className="w-3.5 h-3.5 text-accent-lime/80 shrink-0" />
+                                <span>Ref: <strong className="text-foreground">{exp.manualReference}</strong></span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

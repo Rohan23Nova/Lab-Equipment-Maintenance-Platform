@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/context/ToastContext';
 import { LaboratoryFormModal } from '@/components/inventory/LaboratoryFormModal';
+import { AssociatedExperimentsModal } from '@/components/inventory/AssociatedExperimentsModal';
 import { Laboratory } from '@/types/inventory';
 import { inventoryApi } from '@/lib/inventoryApi';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +18,8 @@ import {
   ArrowRight,
   UserCheck,
   AlertCircle,
+  BookOpen,
+  Wrench,
 } from 'lucide-react';
 
 export const LaboratoryListPage: React.FC = () => {
@@ -30,6 +33,7 @@ export const LaboratoryListPage: React.FC = () => {
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLabForEdit, setSelectedLabForEdit] = useState<Laboratory | null>(null);
+  const [selectedLabForExperiments, setSelectedLabForExperiments] = useState<Laboratory | null>(null);
 
   const canManageLabs =
     user?.roles.some((r) => r === 'ROLE_ADMIN' || r === 'ROLE_LAB_ASSISTANT') ?? false;
@@ -194,15 +198,55 @@ export const LaboratoryListPage: React.FC = () => {
 
                     {/* Manager if assigned */}
                     {lab.managerName && (
-                      <div className="mt-4 pt-3 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center gap-2 text-xs text-muted-foreground">
                         <UserCheck className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span>Facility Manager: <strong className="text-foreground">{lab.managerName}</strong></span>
                       </div>
                     )}
+
+                    {/* Equipment & Practical Counts (Live database values) */}
+                    <div className="mt-4 pt-3 border-t border-border/60 grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-muted/40 rounded-lg p-2.5 flex flex-col justify-between">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium flex items-center gap-1">
+                          <Wrench className="w-3 h-3 text-muted-foreground" />
+                          Instruments
+                        </span>
+                        <div className="flex items-baseline gap-1.5 mt-1">
+                          <span className="text-base font-bold text-foreground">
+                            {lab.totalEquipmentCount ?? 0}
+                          </span>
+                          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                            ({lab.availableEquipmentCount ?? 0} avail)
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLabForExperiments(lab)}
+                        className="bg-muted/40 hover:bg-muted/70 transition-colors rounded-lg p-2.5 flex flex-col justify-between text-left group/exp border border-transparent hover:border-accent-lime/30"
+                      >
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="w-3 h-3 text-accent-lime" />
+                            Practicals
+                          </span>
+                          <span className="text-[10px] text-primary group-hover/exp:underline">view &rarr;</span>
+                        </span>
+                        <div className="mt-1">
+                          <span className="text-base font-bold text-foreground group-hover/exp:text-primary transition-colors">
+                            {lab.experimentCount ?? 0}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground ml-1.5 font-normal">
+                            curriculum experiments
+                          </span>
+                        </div>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Actions footer */}
-                  <div className="mt-6 pt-3 border-t border-border/80 flex items-center justify-between">
+                  <div className="mt-5 pt-3 border-t border-border/80 flex items-center justify-between">
                     <Link
                       to={`/app/equipment?laboratoryId=${lab.id}`}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
@@ -211,17 +255,29 @@ export const LaboratoryListPage: React.FC = () => {
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
 
-                    {canManageLabs && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditClick(lab)}
-                        className="h-7 px-2 text-xs"
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLabForExperiments(lab)}
+                        className="h-7 px-2 text-xs rounded hover:bg-muted text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
+                        title="View experiments conducted in this laboratory"
                       >
-                        <Pencil className="w-3.5 h-3.5 mr-1" />
-                        Edit
-                      </Button>
-                    )}
+                        <BookOpen className="w-3 h-3 text-accent-lime" />
+                        <span>Syllabus</span>
+                      </button>
+
+                      {canManageLabs && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditClick(lab)}
+                          className="h-7 px-2 text-xs"
+                        >
+                          <Pencil className="w-3.5 h-3.5 mr-1" />
+                          Edit
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -230,7 +286,7 @@ export const LaboratoryListPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal: Laboratory Form */}
       {isModalOpen && (
         <LaboratoryFormModal
           isOpen={isModalOpen}
@@ -240,6 +296,17 @@ export const LaboratoryListPage: React.FC = () => {
             toast.success('Laboratory facility saved successfully.');
             loadLaboratories();
           }}
+        />
+      )}
+
+      {/* Modal: Associated Teaching Experiments */}
+      {selectedLabForExperiments && (
+        <AssociatedExperimentsModal
+          isOpen={!!selectedLabForExperiments}
+          laboratoryId={selectedLabForExperiments.id}
+          laboratoryName={selectedLabForExperiments.name}
+          laboratoryCode={selectedLabForExperiments.code}
+          onClose={() => setSelectedLabForExperiments(null)}
         />
       )}
     </AppLayout>

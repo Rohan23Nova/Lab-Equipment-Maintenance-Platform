@@ -22,62 +22,62 @@ import {
 const SAMPLE_EQUIPMENT: PreviewEquipmentItem[] = [
   {
     id: 'eq-01',
-    assetTag: 'MAT-XRD-402',
-    name: 'Rigaku SmartLab X-Ray Diffractometer',
-    model: 'SmartLab 9kW',
-    category: 'Crystallography',
-    labLocation: 'Materials Science Bay B-12',
+    assetTag: 'PHY-DSO-01',
+    name: 'Tektronix 50MHz Digital Storage Oscilloscope',
+    model: 'TBS1052B',
+    category: 'Electrical & Electronics',
+    labLocation: 'Engineering Physics Lab (PHY-101)',
     status: 'AVAILABLE',
-    requiredCertification: 'Radiation Safety Level 2',
+    requiredCertification: 'Physics Lab Safety Briefing',
     nextSlotTime: 'Today 14:00 UTC',
     healthScore: 98,
   },
   {
     id: 'eq-02',
-    assetTag: 'NANO-SEM-108',
-    name: 'FEI Quanta 3D FEG DualBeam SEM/FIB',
-    model: 'Quanta 3D',
-    category: 'Electron Microscopy',
-    labLocation: 'Nanofabrication Cleanroom R-04',
-    status: 'IN_USE',
-    requiredCertification: 'Cleanroom Nanofab Protocol',
-    nextSlotTime: 'Occupied until 16:30 UTC',
-    healthScore: 94,
+    assetTag: 'CHM-BAL-01',
+    name: 'Sartorius Analytical Balance (0.1mg)',
+    model: 'Entris II BCE224I-1S',
+    category: 'General Laboratory Apparatus',
+    labLocation: 'Engineering Chemistry Lab (CHM-101)',
+    status: 'CALIBRATION_PENDING',
+    requiredCertification: 'Chemical Hygiene Protocol',
+    nextSlotTime: 'Due Calibration at 16:30 UTC',
+    healthScore: 91,
   },
   {
     id: 'eq-03',
-    assetTag: 'BIO-NMR-600',
-    name: 'Bruker Avance III HD 600 MHz Spectrometer',
-    model: 'Avance III HD',
-    category: 'Spectroscopy',
-    labLocation: 'Biochemistry Core C-101',
+    assetTag: 'ELE-XFRM-01',
+    name: 'Single-Phase Transformer Test Bench (2kVA)',
+    model: 'KTS-2000-XF',
+    category: 'Electrical Machines',
+    labLocation: 'Basic Electrical Lab (ELE-101)',
     status: 'UNDER_MAINTENANCE',
-    requiredCertification: 'Cryogen Safety Handling',
+    requiredCertification: 'High Voltage Safety SOP',
     nextSlotTime: 'Suspended (WO #2026-084)',
-    healthScore: 61,
+    healthScore: 68,
   },
   {
     id: 'eq-04',
-    assetTag: 'CHEM-HPLC-210',
-    name: 'Agilent 1260 Infinity II HPLC System',
-    model: 'Infinity II Quaternary',
-    category: 'Chromatography',
-    labLocation: 'Analytical Chemistry Lab A-09',
-    status: 'CALIBRATION_PENDING',
-    requiredCertification: 'Hazardous Solvents SOP',
-    nextSlotTime: 'Due Calibration at 18:00 UTC',
-    healthScore: 89,
+    assetTag: 'ECE-FGEN-01',
+    name: 'Keysight 20MHz Function Generator',
+    model: 'EDU33212A',
+    category: 'Electronics & Test Instruments',
+    labLocation: 'Basic Electronics Lab (ECE-101)',
+    status: 'IN_USE',
+    requiredCertification: 'ESD Prevention SOP',
+    nextSlotTime: 'Occupied until 16:00 UTC',
+    healthScore: 95,
   },
   {
     id: 'eq-05',
-    assetTag: 'PHYS-SPM-301',
-    name: 'Asylum Research Cypher ES AFM',
-    model: 'Cypher ES Environmental',
-    category: 'Atomic Force Microscopy',
-    labLocation: 'Condensed Matter Physics P-22',
+    assetTag: 'WKS-LATHE-01',
+    name: 'All-Geared Precision Engine Lathe',
+    model: 'HMT NL-22',
+    category: 'Machine Tools & Fabrication',
+    labLocation: 'Engineering Workshop (WKS-101)',
     status: 'AVAILABLE',
-    requiredCertification: 'AFM Probe Handling Cert',
-    nextSlotTime: 'Open for booking',
+    requiredCertification: 'Machine Shop Safety & PPE',
+    nextSlotTime: 'Open for practical session',
     healthScore: 100,
   },
 ];
@@ -85,33 +85,33 @@ const SAMPLE_EQUIPMENT: PreviewEquipmentItem[] = [
 const SAMPLE_RESERVATIONS: PreviewReservation[] = [
   {
     id: 'res-101',
-    equipmentName: 'FEI Quanta 3D FEG DualBeam SEM/FIB',
-    assetTag: 'NANO-SEM-108',
-    bookedBy: 'Dr. Elena Rostova',
-    department: 'Materials Science & Nanoengineering',
-    interval: '[13:00, 16:30) UTC',
+    equipmentName: 'Tektronix 50MHz Digital Storage Oscilloscope',
+    assetTag: 'PHY-DSO-01',
+    bookedBy: 'Rohan Sharma (B.Tech ECE, Batch A)',
+    department: 'Applied Sciences & Humanities',
+    interval: '[13:00, 15:00) UTC',
     status: 'CHECKED_IN',
-    purpose: 'Gallium ion milling on perovskite thin film samples',
+    purpose: 'EXP-PHY-01: Frequency & phase determination via Lissajous figures',
   },
   {
     id: 'res-102',
-    equipmentName: 'Rigaku SmartLab X-Ray Diffractometer',
-    assetTag: 'MAT-XRD-402',
-    bookedBy: 'Marcus Chen (Grad Researcher)',
-    department: 'Chemical Engineering',
-    interval: '[17:00, 19:30) UTC',
+    equipmentName: 'Keysight 20MHz Function Generator',
+    assetTag: 'ECE-FGEN-01',
+    bookedBy: 'Priya Nair (B.Tech EE, Batch B)',
+    department: 'Electronics & Communication',
+    interval: '[15:00, 17:00) UTC',
     status: 'CONFIRMED',
-    purpose: 'Grazing incidence XRD on synthetic catalyst electrodes',
+    purpose: 'EXP-ECE-01: PN junction diode forward/reverse V-I characteristics',
   },
   {
     id: 'res-103',
-    equipmentName: 'Asylum Research Cypher ES AFM',
-    assetTag: 'PHYS-SPM-301',
-    bookedBy: 'Prof. David Vance',
-    department: 'Applied Physics',
-    interval: '[20:00, 22:00) UTC',
+    equipmentName: 'All-Geared Precision Engine Lathe',
+    assetTag: 'WKS-LATHE-01',
+    bookedBy: 'Arjun Patel (B.Tech ME, Batch C)',
+    department: 'Mechanical Engineering',
+    interval: '[17:00, 19:30) UTC',
     status: 'CONFIRMED',
-    purpose: 'Force spectroscopy of lipid bilayer membranes',
+    purpose: 'EXP-WKS-01: Cylindrical step turning and knurling practice',
   },
 ];
 
@@ -119,23 +119,23 @@ const SAMPLE_WORK_ORDERS: PreviewWorkOrder[] = [
   {
     id: 'wo-84',
     workOrderNumber: 'WO-2026-084',
-    equipmentName: 'Bruker Avance III HD 600 MHz Spectrometer',
-    assetTag: 'BIO-NMR-600',
-    faultSummary: 'Helium boil-off monitor threshold warning & probe drift',
-    severity: 'CRITICAL',
+    equipmentName: 'Single-Phase Transformer Test Bench (2kVA)',
+    assetTag: 'ELE-XFRM-01',
+    faultSummary: 'Secondary winding terminal loose connection & variac knob binding',
+    severity: 'MEDIUM',
     status: 'IN_PROGRESS',
-    assignedTechnician: 'Sarah Jenkins (Cryo Field Specialist)',
-    loggedHours: '3.5 hrs (Parts Replaced: Transfer Line Gasket)',
+    assignedTechnician: 'Anil Kumar (Senior Electrical Technician)',
+    loggedHours: '2.5 hrs (Parts Replaced: Terminal Binding Post)',
   },
   {
     id: 'wo-85',
     workOrderNumber: 'WO-2026-085',
-    equipmentName: 'Agilent 1260 Infinity II HPLC System',
-    assetTag: 'CHEM-HPLC-210',
-    faultSummary: 'Quarterly pressure transducer recalibration',
+    equipmentName: 'Sartorius Analytical Balance (0.1mg)',
+    assetTag: 'CHM-BAL-01',
+    faultSummary: 'Scheduled calibration using Class E2 standard weights & draft shield check',
     severity: 'MEDIUM',
     status: 'OPEN',
-    assignedTechnician: 'Robert Vance (Lab Operations)',
+    assignedTechnician: 'Dr. Sunita Rao (Lab Superintendent)',
     loggedHours: 'Pending start',
   },
 ];
@@ -188,7 +188,7 @@ export const ProductPreview: React.FC = () => {
               Equipment Lifecycle &amp; Availability Console
             </h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-              Inspect how university researchers browse instrument bays, check real-time availability, schedule non-colliding slots, and monitor reactive work orders.
+              Inspect how students, faculty, and lab assistants browse first-year teaching laboratories, verify instrument availability, reserve apparatus for practical sessions, and track maintenance.
             </p>
           </div>
 
@@ -240,7 +240,7 @@ export const ProductPreview: React.FC = () => {
             <div className="flex items-center gap-3">
               <span className="font-mono font-medium text-foreground flex items-center gap-1.5">
                 <Building2 className="w-4 h-4 text-muted-foreground" />
-                Central Research Infrastructure Bay
+                First-Year Engineering Teaching Laboratories
               </span>
               <span className="text-muted-foreground/60">|</span>
               <span className="text-muted-foreground font-mono text-[11px]">
@@ -279,11 +279,12 @@ export const ProductPreview: React.FC = () => {
                     aria-label="Filter by laboratory facility"
                     className="text-xs bg-background border border-input rounded-md px-2.5 py-1.5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <option value="ALL">All Laboratories</option>
-                    <option value="Materials Science">Materials Science</option>
-                    <option value="Nanofabrication">Nanofabrication</option>
-                    <option value="Biochemistry">Biochemistry</option>
-                    <option value="Chemistry">Analytical Chemistry</option>
+                    <option value="ALL">All Teaching Laboratories</option>
+                    <option value="Engineering Physics">Engineering Physics (PHY-101)</option>
+                    <option value="Engineering Chemistry">Engineering Chemistry (CHM-101)</option>
+                    <option value="Basic Electrical">Basic Electrical (ELE-101)</option>
+                    <option value="Basic Electronics">Basic Electronics (ECE-101)</option>
+                    <option value="Engineering Workshop">Engineering Workshop (WKS-101)</option>
                   </select>
                 </div>
               </div>
