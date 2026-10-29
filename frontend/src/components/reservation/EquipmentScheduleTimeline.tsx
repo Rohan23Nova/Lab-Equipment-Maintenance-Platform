@@ -132,12 +132,12 @@ export const EquipmentScheduleTimeline: React.FC<EquipmentScheduleTimelineProps>
 
           {onOpenBookingModal && isReservable && (
             <Button
-              variant="primary"
+              variant="lime"
               size="sm"
               onClick={onOpenBookingModal}
               className="gap-1.5"
             >
-              <Plus className="w-3.5 h-3.5 text-ink-950" />
+              <Plus className="w-3.5 h-3.5" />
               <span>Reserve</span>
             </Button>
           )}

@@ -215,12 +215,12 @@ export const EquipmentDetailPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   {equipment.status !== 'ARCHIVED' && equipment.status !== 'UNDER_MAINTENANCE' && (
                     <Button
-                      variant="primary"
+                      variant="lime"
                       size="sm"
                       onClick={() => setIsReserveModalOpen(true)}
-                      className="gap-1.5 text-ink-950 font-semibold"
+                      className="gap-1.5"
                     >
-                      <Calendar className="w-4 h-4 text-ink-950" />
+                      <Calendar className="w-4 h-4" />
                       <span>Reserve Instrument</span>
                     </Button>
                   )}
