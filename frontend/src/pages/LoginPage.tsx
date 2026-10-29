@@ -177,6 +177,13 @@ export const LoginPage: React.FC = () => {
             >
               Sign In to LabLedger
             </Button>
+
+            <div className="text-center text-xs text-muted-foreground pt-1">
+              Don&apos;t have an institutional account?{' '}
+              <Link to="/register" className="font-semibold text-primary hover:underline">
+                Create an account
+              </Link>
+            </div>
           </form>
 
           <div className="mt-6 pt-6 border-t border-border/60">

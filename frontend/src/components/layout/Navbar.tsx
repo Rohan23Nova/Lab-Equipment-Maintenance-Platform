@@ -190,6 +190,13 @@ export const Navbar: React.FC = () => {
                 </Button>
               </Link>
 
+              {/* Sign Up CTA */}
+              <Link to="/register">
+                <Button variant="outline" size="sm" className="hidden lg:inline-flex">
+                  Sign Up
+                </Button>
+              </Link>
+
               {/* Primary CTA */}
               <Link to="/login">
                 <Button variant="primary" size="sm" className="gap-1.5">
@@ -363,6 +370,11 @@ export const Navbar: React.FC = () => {
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" size="md" className="w-full justify-center">
                     Sign In
+                  </Button>
+                </Link>
+                <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" size="md" className="w-full justify-center">
+                    Create Account
                   </Button>
                 </Link>
                 <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
