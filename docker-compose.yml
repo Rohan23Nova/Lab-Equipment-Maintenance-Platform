@@ -1,5 +1,18 @@
 version: '3.8'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# LabLedger — Local Development Infrastructure
+#
+# Starts: PostgreSQL only.
+# The Spring Boot backend and React frontend run with their respective dev
+# servers for hot-reload during development.
+#
+# Usage:
+#   docker compose up -d
+#   ./mvnw spring-boot:run   (backend, separate terminal)
+#   npm run dev --prefix frontend  (frontend, separate terminal)
+# ─────────────────────────────────────────────────────────────────────────────
+
 services:
   postgres:
     image: postgres:16-alpine

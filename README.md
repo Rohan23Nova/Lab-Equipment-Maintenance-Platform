@@ -141,23 +141,60 @@ graph TD
 - [x] **Phase 00: Project Foundation** — Architecture blueprints, data model specifications, security model, testing strategy, ADRs, code formatting, and Git baseline.
 - [x] **Phase 01: Visual Identity & Landing Page** — Design tokens, brand marks, accessible UI primitives, responsive public landing page, interactive product preview console, and persistent light/dark themes.
 - [x] **Phase 02: Core Backend Foundation & Database Integration** — Maven setup, Spring Boot 3.4.3 on Java 21, PostgreSQL integration, Flyway migrations, RFC 7807 problem details, health endpoints, and centralized frontend API client.
-- [ ] **Phase 03: Equipment Inventory Module** — Laboratories, equipment categories, physical assets, status lifecycle (`AVAILABLE`, `IN_USE`, `UNDER_MAINTENANCE`), search, and filters.
-- [ ] **Phase 04: Reservations & Scheduling Engine** — Calendar scheduler, half-open interval validation, GiST exclusion constraints, approval workflows, and check-in/out.
-- [ ] **Phase 05: Fault Reports, Maintenance & Notifications** — Fault reporting, triage, work orders, spare parts consumption, asynchronous event notifications.
-- [ ] **Phase 06: Audit History, Analytics & Hardening** — Append-only audit logging, utilization analytics, MTBF/MTTR metrics, CSV export, and end-to-end integration tests.
+- [x] **Phase 03: Authentication & Role-Based Authorization** — Spring Security 6 stateful sessions, CSRF (`X-XSRF-TOKEN`), BCrypt password encoding, account lockout, `@PreAuthorize` RBAC, roles: `STUDENT / FACULTY / LAB_ASSISTANT / TECHNICIAN / ADMIN`.
+- [x] **Phase 04: Equipment Inventory & Laboratory Management** — Laboratory and equipment entities, Flyway V3 migration, lifecycle enums (`AVAILABLE → IN_USE → UNDER_MAINTENANCE → ARCHIVED`), category management, search, pagination, sorting, and filters.
+- [x] **Phase 05: Equipment Reservation Engine** — Half-open interval `[start, end)` scheduling, GiST exclusion constraint, pessimistic locks, approval workflows (`PENDING → APPROVED / REJECTED → COMPLETED`), configurable booking policies.
+- [x] **Phase 06: Fault Reports & Maintenance Work Orders** — Fault lifecycle (`OPEN → TRIAGED → IN_REPAIR → RESOLVED → CLOSED`), work order lifecycle (`CREATED → ASSIGNED → IN_PROGRESS → COMPLETED`), repair notes, technician assignment.
+- [x] **Phase 07: Notifications & Audit History** — In-app notification centre, unread count, mark-read / mark-all-read, upcoming reservation reminders scheduler, append-only `AuditLog` for all significant state transitions.
+- [x] **Phase 08: Operational Dashboard & Analytics** — Role-aware dashboard metrics (utilization, fault rate, pending approvals, overdue work orders), CSV export, and utilization reporting.
+- [x] **Phase 09: Full-Application UX Integration & Design Polish** — Collapsible sidebar, breadcrumbs, toast notifications, confirmation dialogs, responsive mobile layout, dark/light theme parity, code-split lazy-loaded routes.
+- [x] **Phase 10: System-Wide Testing & Security Hardening** — `UserServiceTest` (7 cases), `ReservationServiceTest` (11 cases), 16 controller slice tests, 5 integration test classes, GitHub Actions CI (backend + frontend + security audit).
+- [x] **Phase 11: Deployment & Final Project Delivery** — Multi-stage Dockerfiles (JRE + nginx), `docker-compose.prod.yml`, `.env.example`, health checks, non-root users, network isolation, `docs/FINAL_VERIFICATION.md`.
 
 ---
 
-## 6. Engineering Standards
+## 6. Quick Start
 
-- **Constructor Injection**: All Spring components use constructor injection (via `@RequiredArgsConstructor` or explicit constructors). Field injection (`@Autowired` on fields) is forbidden.
-- **Fail Fast with Structured Errors**: Validation errors and business rule failures return RFC 7807 `ProblemDetail` with field-level breakdowns.
-- **Zero Secrets in Repository**: No passwords, tokens, or credentials may ever be committed. All configuration is externalized via `.env`.
-- **Database Migrations First**: Database schema changes are performed strictly via Flyway migration scripts. Hibernate `ddl-auto` is set to `validate`.
+### Development (local)
+
+```bash
+# 1. Start PostgreSQL
+docker compose up -d
+
+# 2. Start the backend (requires Java 21)
+cp .env.example .env   # edit DB credentials if needed
+./mvnw spring-boot:run
+
+# 3. Start the frontend (requires Node 20)
+npm install --prefix frontend
+npm run dev --prefix frontend
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+### Production (Docker Compose)
+
+```bash
+cp .env.example .env  # fill in all required values
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml ps
+```
+
+Open [http://localhost:80](http://localhost:80). See [`docs/FINAL_VERIFICATION.md`](docs/FINAL_VERIFICATION.md) for the full verification checklist.
 
 ---
 
-## 7. Documentation Index
+## 7. Engineering Standards
+
+- **Constructor Injection**: All Spring components use constructor injection (`@RequiredArgsConstructor`). Field injection is forbidden.
+- **Fail Fast with Structured Errors**: All errors return RFC 7807 `ProblemDetail` with field-level breakdowns.
+- **Zero Secrets in Repository**: All credentials are externalized via `.env`.
+- **Database Migrations First**: All schema changes via Flyway scripts. Hibernate `ddl-auto: validate` in all profiles.
+
+---
+
+## 8. Documentation Index
 
 For detailed specifications, consult the documents in the [`docs/`](docs/) directory:
 - [Architecture Blueprint](docs/ARCHITECTURE.md)
@@ -166,4 +203,5 @@ For detailed specifications, consult the documents in the [`docs/`](docs/) direc
 - [Testing Strategy](docs/TESTING_STRATEGY.md)
 - [Architecture Decision Records](docs/DECISIONS.md)
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
+- [Final Verification Report](docs/FINAL_VERIFICATION.md)
 - [Agent Operational Guidelines](AGENTS.md)
